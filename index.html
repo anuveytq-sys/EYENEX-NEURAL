@@ -20,8 +20,7 @@
   <div class="app-shell">
     <aside class="rail">
       <a class="brand-mark" href="#" aria-label="EYENEX home"><span class="brand-glyph">E</span></a>
-      <div class="rail-divider"></div>
-<div class="rail-spacer"></div>
+      <div class="rail-divider"></div><div class="rail-spacer"></div>
       <button class="rail-button" id="helpButton" aria-label="About EYENEX" title="About EYENEX"><span>?</span></button>
       <div class="status-dot" title="Interface online"></div>
     </aside>
@@ -50,33 +49,33 @@
         </div>
       </section>
       <section class="panel command-panel">
-            <div class="panel-heading"><div><span class="panel-kicker">01 / INPUT</span><h2>Command interface</h2></div><span class="panel-icon">↳</span></div>
-            <div class="conversation" id="conversation" aria-live="polite"><div class="message system-message"><span class="message-mark">E</span><div><small>EYENEX NEURAL <time>READY</time></small><p>Neural Core initialized. Describe a goal, ask a question, or request a plan. Plans created in this build are local templates—not live AI responses.</p></div></div><div class="starter-prompts"><button class="prompt-chip">Plan a complex task <span>↗</span></button><button class="prompt-chip">Explain an idea <span>↗</span></button><button class="prompt-chip">Review a project <span>↗</span></button></div></div>
-            <form class="command-composer" id="commandForm"><label class="sr-only" for="commandInput">Enter a command</label><textarea id="commandInput" rows="1" placeholder="Tell NEURAL what you want to accomplish…" required></textarea><div class="composer-footer"><span><i class="composer-dot"></i> <span id="aiModeLabel">LOCAL PLANNER</span> <span class="composer-muted" id="aiModeHint">· live AI not connected</span></span><button class="send-button" type="submit">Send command <b>↗</b></button></div></form>
-          </section>
+        <div class="panel-heading"><div><span class="panel-kicker">01 / INPUT</span><h2>Command interface</h2></div><span class="panel-icon">↳</span></div>
+        <div class="conversation" id="conversation" aria-live="polite"><div class="message system-message"><span class="message-mark">E</span><div><small>EYENEX NEURAL <time>READY</time></small><p>Neural Core initialized. Describe a goal, ask a question, or request a plan. Plans created in this build are local templates—not live AI responses.</p></div></div><div class="starter-prompts"><button class="prompt-chip">Plan a complex task <span>↗</span></button><button class="prompt-chip">Explain an idea <span>↗</span></button><button class="prompt-chip">Review a project <span>↗</span></button></div></div>
+        <form class="command-composer" id="commandForm"><label class="sr-only" for="commandInput">Enter a command</label><textarea id="commandInput" rows="1" placeholder="Tell NEURAL what you want to accomplish…" required></textarea><div class="composer-footer"><span><i class="composer-dot"></i> <span id="aiModeLabel">LOCAL PLANNER</span> <span class="composer-muted" id="aiModeHint">· live AI not connected</span></span><button class="send-button" type="submit">Send command <b>↗</b></button></div></form>
+        <section class="orchestration-deck" id="orchestrationDeck" aria-labelledby="orchestrationTitle">
+          <div class="ops-head"><div><span class="panel-kicker">02 / ORCHESTRATION</span><h3 id="orchestrationTitle">Mission control</h3></div><div class="ops-head-right"><span id="opsProgress">NO ACTIVE MISSION</span><span class="ops-pulse" id="opsPulse">STANDBY</span></div></div>
+          <div class="ops-grid">
+            <section class="ops-card"><div class="ops-card-title"><span>EXECUTION TIMELINE</span><button type="button" class="ops-icon-btn" id="opsRefresh" title="Refresh mission telemetry" aria-label="Refresh mission telemetry">↻</button></div><div id="opsTimeline" class="ops-timeline"><div class="ops-empty">MISSION TELEMETRY AWAITS A WORKFLOW</div></div></section>
+            <section class="ops-card"><div class="ops-card-title"><span>APPROVAL GATE</span><span class="ops-lock">HUMAN REVIEW</span></div><div id="opsApproval" class="ops-approval"><div class="ops-empty">No task is waiting for approval.</div></div></section>
+          </div>
+          <section class="ops-audit-card"><div class="ops-card-title"><span>AUDIT / RECOVERY TRAIL</span><button type="button" class="ops-text-btn" id="opsClearAudit">Clear local trail</button></div><div id="opsAudit" class="ops-audit"><div class="ops-empty">Audit trail is clean. No orchestration events recorded yet.</div></div></section>
+          <p class="ops-boundary">LOCAL ORCHESTRATION ONLY · checkpoints change browser-local state and do not execute external actions.</p>
+        </section>
+      </section>
       <footer class="footer"><span>EYENEX NEURAL <b>·</b> CONCEPT BUILD 002</span><span>INTELLIGENCE WITH HUMAN OVERSIGHT <span class="footer-mark">✳</span></span></footer>
     </main>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <dialog id="settingsDialog" class="settings-dialog" aria-labelledby="settingsTitle">
-    <div class="settings-layout">
-      <div class="settings-head"><div><span class="panel-kicker">SYSTEM CONFIGURATION / 01</span><h2 id="settingsTitle">EYENEX <em>Settings</em></h2></div><button class="settings-close" id="closeSettings" type="button" aria-label="Close settings">×</button></div>
-      <div class="settings-body">
-        <p class="settings-intro">Connect your own OpenRouter account to enable live AI answers in Neural Core and AI-assisted analysis in Intelligence Lab.</p>
-        <div class="settings-key-state" id="keyState"><i></i><span>No API key saved in this browser</span></div>
-        <form id="settingsForm">
-          <label class="settings-field" for="openRouterKey"><span>OPENROUTER API KEY</span><input id="openRouterKey" name="openRouterKey" type="password" placeholder="sk-or-v1-…" autocomplete="off" spellcheck="false" aria-describedby="keyHelp" /><small id="keyHelp">Paste your own key. It will not be added to the GitHub repository.</small></label>
-          <label class="settings-field" for="openRouterModel"><span>MODEL ID</span><input id="openRouterModel" name="openRouterModel" type="text" value="openrouter/auto" placeholder="provider/model-name" autocomplete="off" spellcheck="false" /><small>Enter a model ID supported by OpenRouter. Model pricing and availability vary.</small></label>
-          <div class="settings-actions"><button class="settings-action" id="testApiKey" type="button">Test API key</button><button class="settings-action primary" id="saveSettings" type="submit">Save locally</button><button class="settings-action secondary" id="toggleKeyVisibility" type="button">Show key</button></div>
-          <p class="settings-feedback" id="settingsFeedback" role="status" aria-live="polite"></p>
-        </form>
-        <div class="settings-divider"></div>
-        <div class="settings-actions"><button class="settings-action danger" id="removeSavedKey" type="button">Remove saved key</button></div>
-        <div class="settings-warning"><span aria-hidden="true">⚠</span><div><strong>Browser-storage safety</strong>Your key is saved in this browser’s local storage, not encrypted and not synced. Page scripts can access it. Use only on a device/profile you control, never paste the key into chat or commit it to GitHub, and set a spending limit on your OpenRouter key. API requests may incur charges depending on the model.</div></div>
+    <div class="settings-layout"><div class="settings-head"><div><span class="panel-kicker">SYSTEM CONFIGURATION / 01</span><h2 id="settingsTitle">EYENEX <em>Settings</em></h2></div><button class="settings-close" id="closeSettings" type="button" aria-label="Close settings">×</button></div>
+      <div class="settings-body"><p class="settings-intro">Connect your own OpenRouter account to enable live AI answers in Neural Core and AI-assisted analysis in Intelligence Lab.</p><div class="settings-key-state" id="keyState"><i></i><span>No API key saved in this browser</span></div>
+        <form id="settingsForm"><label class="settings-field" for="openRouterKey"><span>OPENROUTER API KEY</span><input id="openRouterKey" name="openRouterKey" type="password" placeholder="sk-or-v1-…" autocomplete="off" spellcheck="false" aria-describedby="keyHelp" /><small id="keyHelp">Paste your own key. It will not be added to the GitHub repository.</small></label><label class="settings-field" for="openRouterModel"><span>MODEL ID</span><input id="openRouterModel" name="openRouterModel" type="text" value="openrouter/auto" placeholder="provider/model-name" autocomplete="off" spellcheck="false" /><small>Enter a model ID supported by OpenRouter. Model pricing and availability vary.</small></label><div class="settings-actions"><button class="settings-action" id="testApiKey" type="button">Test API key</button><button class="settings-action primary" id="saveSettings" type="submit">Save locally</button><button class="settings-action secondary" id="toggleKeyVisibility" type="button">Show key</button></div><p class="settings-feedback" id="settingsFeedback" role="status" aria-live="polite"></p></form>
+        <div class="settings-divider"></div><div class="settings-actions"><button class="settings-action danger" id="removeSavedKey" type="button">Remove saved key</button></div><div class="settings-warning"><span aria-hidden="true">⚠</span><div><strong>Browser-storage safety</strong>Your key is saved in this browser’s local storage, not encrypted and not synced. Page scripts can access it. Use only on a device/profile you control, never paste the key into chat or commit it to GitHub, and set a spending limit on your OpenRouter key. API requests may incur charges depending on the model.</div></div>
       </div>
     </div>
   </dialog>
   <dialog id="aboutDialog" class="about-dialog"><button class="dialog-close" id="closeDialog" aria-label="Close">×</button><span class="panel-kicker">ABOUT THE SYSTEM</span><h2>EYENEX <em>NEURAL</em></h2><p>A modular AI command center prototype with two focused environments: Neural Core for commands and workflow planning, and Intelligence Lab for structured analysis.</p><p class="dialog-note">This build includes a local mission planner and browser persistence. A live AI provider, external project access, autonomous execution, and camera-based tracking are not connected yet.</p></dialog>
   <script src="./assets/js/eyenex.js"></script>
+  <script src="./assets/js/orchestration.js"></script>
 </body>
 </html>
