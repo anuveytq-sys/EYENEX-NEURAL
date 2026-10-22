@@ -7,14 +7,72 @@
   const save = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch (_) {} };
   const esc = v => String(v).replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]));
   const deck = $('#orchestrationDeck');
-  if (!deck) return;
+  const commandPanel = $('.command-panel');
+  const coreEnvironment = $('#coreEnvironment');
+  if (!deck || !commandPanel || !coreEnvironment) return;
+
+  /* Keep the lower HUD modules out of the command panel's clipped scroll area.
+     They become two independent panels beneath Mission Queue and Core Status,
+     leaving the central neural core unobstructed. */
+  coreEnvironment.appendChild(commandPanel);
+  coreEnvironment.appendChild(deck);
+  commandPanel.classList.add('hud-lower-panel', 'hud-command-panel');
+  deck.classList.add('hud-lower-panel', 'hud-orchestration-panel');
+
   const style = document.createElement('style');
   style.textContent = `
-    .orchestration-deck{margin:8px 9px 10px;padding:10px;border:1px solid rgba(0,220,255,.2);border-radius:4px;background:linear-gradient(145deg,rgba(2,23,43,.72),rgba(0,6,15,.76));min-width:0;flex:0 0 auto;}
+    .orchestration-deck{margin:0;padding:10px;border:1px solid rgba(0,220,255,.2);border-radius:4px;background:linear-gradient(145deg,rgba(2,23,43,.72),rgba(0,6,15,.76));min-width:0;}
     .ops-head,.ops-card-title,.ops-head-right{display:flex;align-items:center;justify-content:space-between;gap:8px}.ops-head h3{margin:3px 0 0;color:#e8fbff;font-size:11px}.ops-head-right{font:7px 'DM Mono',monospace;color:#62dced;white-space:nowrap}.ops-pulse{padding:3px 5px;border:1px solid rgba(0,234,255,.25);border-radius:3px}.ops-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:7px;margin-top:8px}.ops-card,.ops-audit-card{border:1px solid rgba(85,184,212,.16);border-radius:4px;background:rgba(0,8,18,.42);padding:8px;min-width:0}.ops-card-title{font:7px 'DM Mono',monospace;letter-spacing:.1em;color:#6daabd}.ops-icon-btn,.ops-text-btn{border:0;background:transparent;color:#59dff3;cursor:pointer;font:8px 'DM Mono',monospace}.ops-lock{color:#8aa5b0;font-size:6px}.ops-timeline{margin-top:6px;display:grid;gap:4px;max-height:96px;overflow:auto}.ops-step{display:grid;grid-template-columns:22px 1fr 18px;align-items:center;gap:6px;padding:5px;border-left:1px solid rgba(0,220,255,.18);background:rgba(0,170,255,.025)}.ops-step-index{font:7px 'DM Mono',monospace;color:#4e91a7}.ops-step-body{min-width:0}.ops-step-body strong,.ops-approval-card strong{display:block;color:#dff8ff;font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ops-step-body small,.ops-approval-card small{display:block;margin-top:2px;color:rgba(187,219,230,.62);font-size:6px;line-height:1.35}.ops-node{display:grid;place-items:center;width:16px;height:16px;border-radius:50%;font-size:8px;border:1px solid rgba(115,170,190,.3);color:#668b99}.ops-node.active{color:#5fe9ff;border-color:#36d9ef;box-shadow:0 0 8px rgba(0,220,255,.25)}.ops-node.done,.ops-node.approved{color:#74e7c2;border-color:rgba(116,231,194,.45)}.ops-approval{margin-top:6px}.ops-approval-card{display:grid;gap:7px}.ops-actions{display:flex;flex-wrap:wrap;gap:4px}.ops-btn{border:1px solid rgba(88,179,204,.25);background:rgba(0,120,180,.08);color:#bdebf5;border-radius:3px;padding:5px 6px;font:7px 'DM Mono',monospace;cursor:pointer}.ops-btn.primary{border-color:rgba(0,234,255,.45);color:#62e9fb;background:rgba(0,180,230,.1)}.ops-audit-card{margin-top:7px}.ops-audit{max-height:65px;overflow:auto;margin-top:5px}.ops-audit-row{display:grid;grid-template-columns:45px 55px 1fr;gap:5px;padding:4px 0;border-top:1px solid rgba(90,170,194,.09);font-size:6px}.ops-audit-row time{color:#4d8291;font-family:'DM Mono',monospace}.ops-audit-row span{color:#60dcec;font-family:'DM Mono',monospace}.ops-audit-row p{margin:0;color:rgba(205,228,237,.66)}.ops-empty{padding:8px;color:rgba(130,178,193,.58);font:7px 'DM Mono',monospace;letter-spacing:.05em;text-align:center}.ops-boundary{margin:6px 0 0;color:rgba(117,166,181,.5);font:6px 'DM Mono',monospace;text-align:right}.orchestration-deck button:focus-visible{outline:1px solid #48e6fa;outline-offset:2px}
-    @media(max-width:760px){.orchestration-deck{margin:6px 6px 7px;padding:7px}.ops-head h3{font-size:9px}.ops-grid{grid-template-columns:1fr;gap:5px}.ops-timeline{max-height:74px}.ops-audit{max-height:55px}.ops-step-body strong,.ops-approval-card strong{font-size:7px}.ops-step-body small,.ops-approval-card small{font-size:5px}.ops-btn{font-size:6px;padding:4px 5px}.ops-boundary{font-size:5px}}
+
+    /* Lower split HUD: command/idea controls on the left, mission control on the right. */
+    .hud-lower-panel{position:absolute!important;z-index:9;top:auto!important;bottom:8px!important;height:clamp(142px,24vh,188px)!important;max-height:188px!important;min-height:0!important;overflow:hidden!important;box-sizing:border-box;}
+    .hud-command-panel{left:16px!important;right:auto!important;transform:none!important;width:clamp(180px,18vw,238px)!important;max-width:238px!important;margin:0!important;border-radius:3px!important;display:flex!important;flex-direction:column!important;background:linear-gradient(145deg,rgba(2,25,47,.9),rgba(0,7,17,.86))!important;border-color:rgba(0,220,255,.23)!important;box-shadow:0 0 23px rgba(0,140,255,.07),inset 0 0 18px rgba(0,160,255,.025)!important;}
+    .hud-command-panel .panel-heading{display:block!important;flex:0 0 auto!important;padding:9px 10px 6px!important;}
+    .hud-command-panel .panel-heading h2{font-size:10px!important;}
+    .hud-command-panel .conversation{flex:1 1 auto!important;min-height:0!important;max-height:none!important;overflow-y:auto!important;padding:7px 9px 4px!important;}
+    .hud-command-panel .message p{font-size:8px!important;line-height:1.35!important;}
+    .hud-command-panel .starter-prompts{margin:6px 0 0 28px!important;display:flex!important;flex-wrap:wrap!important;gap:4px!important;}
+    .hud-command-panel .prompt-chip{padding:4px 6px!important;font-size:7px!important;}
+    .hud-command-panel .command-composer{flex:0 0 auto!important;margin:4px 6px 6px!important;padding:6px 7px!important;}
+    .hud-command-panel .command-composer textarea{min-height:22px!important;max-height:34px!important;font-size:8px!important;}
+    .hud-command-panel .composer-footer{padding-top:5px!important;}
+    .hud-command-panel .send-button{font-size:7px!important;padding:5px 7px!important;}
+    .hud-orchestration-panel{left:auto!important;right:16px!important;width:clamp(180px,18vw,238px)!important;max-width:238px!important;margin:0!important;}
+    .hud-orchestration-panel .ops-grid{grid-template-columns:1fr!important;gap:5px!important;}
+    .hud-orchestration-panel .ops-timeline{max-height:52px!important;}
+    .hud-orchestration-panel .ops-audit-card{margin-top:5px!important;}
+    .hud-orchestration-panel .ops-audit{max-height:34px!important;}
+    .hud-orchestration-panel .ops-card{padding:6px!important;}
+    .hud-orchestration-panel .ops-card:nth-child(2){display:block!important;}
+    .hud-orchestration-panel .ops-head{gap:4px!important;}
+    .hud-orchestration-panel .ops-head h3{font-size:9px!important;}
+    .hud-orchestration-panel .ops-boundary{font-size:5px!important;}
+
+    @media(max-width:760px){
+      .hud-lower-panel{bottom:5px!important;height:136px!important;max-height:136px!important;}
+      .hud-command-panel{left:4px!important;width:calc(50% - 7px)!important;max-width:none!important;}
+      .hud-orchestration-panel{right:4px!important;width:calc(50% - 7px)!important;max-width:none!important;}
+      .hud-command-panel .panel-heading{padding:7px 7px 4px!important;}
+      .hud-command-panel .panel-heading h2{font-size:8px!important;}
+      .hud-command-panel .message p{font-size:7px!important;}
+      .hud-command-panel .prompt-chip{font-size:6px!important;padding:3px 4px!important;}
+      .hud-command-panel .command-composer{margin:3px 4px 4px!important;padding:5px!important;}
+      .hud-command-panel .command-composer textarea{font-size:7px!important;min-height:19px!important;max-height:28px!important;}
+      .hud-command-panel .send-button{font-size:6px!important;padding:4px 5px!important;}
+      .hud-orchestration-panel{padding:7px!important;}
+      .hud-orchestration-panel .ops-head h3{font-size:8px!important;}
+      .hud-orchestration-panel .ops-head-right{font-size:5px!important;}
+      .hud-orchestration-panel .ops-card-title{font-size:6px!important;}
+      .hud-orchestration-panel .ops-timeline{max-height:39px!important;}
+      .hud-orchestration-panel .ops-audit{max-height:27px!important;}
+      .hud-orchestration-panel .ops-step{padding:3px!important;}
+      .hud-orchestration-panel .ops-step-body strong,.hud-orchestration-panel .ops-approval-card strong{font-size:6px!important;}
+      .hud-orchestration-panel .ops-step-body small,.hud-orchestration-panel .ops-approval-card small{font-size:4px!important;}
+      .hud-orchestration-panel .ops-btn{font-size:5px!important;padding:3px 4px!important;}
+    }
   `;
   document.head.appendChild(style);
+
   const timeline = $('#opsTimeline');
   const audit = $('#opsAudit');
   const approval = $('#opsApproval');
