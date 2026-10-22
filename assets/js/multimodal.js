@@ -3,6 +3,7 @@
   const $ = selector => document.querySelector(selector);
   const startButton = $('#cameraStart'), calibrateButton = $('#cameraCalibrate');
   const pauseButton = $('#cameraPause'), blinkButton = $('#cameraBlink'), stopButton = $('#cameraStop');
+  const modeButton = $('#cameraMode'), openSettingsButton = $('#openSettings');
   const video = $('#cameraPreview'), previewOverlay = $('#cameraPreviewOverlay');
   const status = $('#cameraStatus'), feedback = $('#cameraFeedback');
   const settingsDialog = $('#settingsDialog');
@@ -11,7 +12,7 @@
   const WASM_ROOT = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm';
   const MODEL_URL = 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task';
   let stream = null, landmarker = null, raf = 0, paused = false, blinkConfirm = false;
-  let baseline = null, smoothed = null, closedAt = 0, blinkConsumed = false, lastFrameAt = 0;
+  let baseline = null, smoothed = null, eyeBaseline = null, eyeSmoothed = null, pointerMode = 'head', closedAt = 0, blinkConsumed = false, lastFrameAt = 0;
   let pointer = null, pointerX = window.innerWidth / 2, pointerY = window.innerHeight / 2;
   let lastConfirmAt = 0, lastDetectErrorAt = 0;
 
@@ -25,7 +26,7 @@
     pointer = document.createElement('div');
     pointer.className = 'eyenex-camera-pointer';
     pointer.setAttribute('aria-hidden', 'true');
-    (settingsDialog || document.body).appendChild(pointer);
+    (settingsDialog && settingsDialog.open ? settingsDialog : document.body).appendChild(pointer);
     return pointer;
   }
   function updatePointer(x, y) {
@@ -44,9 +45,9 @@
     if (!target) { say('Blink detected, but no confirmable control is under the pointer.'); return; }
     const button = target.closest('button:not(:disabled)');
     const label = button ? [button.textContent, button.title, button.getAttribute('aria-label') || ''].join(' ') : '';
-    const destructive = /\\b(delete|remove|clear|reset|stop camera|erase)\\b/i.test(label);
+    const destructive = /\b(delete|remove|clear|reset|stop camera|erase)\b/i.test(label);
     if (!button || button.type === 'submit' || destructive || button.matches('.danger,#removeSavedKey,.settings-close,#closeSettings,#closeDialog') ||
-        button.closest('.camera-control-card') || button.getAttribute('aria-hidden') === 'true') {
+        button.closest('.camera-control-card') || button.getAttribute('aria-hidden') === 'true' || button.matches('#cameraMode,#cameraCalibrate,#cameraPause,#cameraBlink,#cameraStart,#cameraStop')) {
       say('Blink registered. Move the pointer onto a safe, non-destructive button to confirm.');
       return;
     }
@@ -61,10 +62,12 @@
     calibrateButton.disabled = !active;
     pauseButton.disabled = !active;
     blinkButton.disabled = !active;
+    if (modeButton) modeButton.disabled = !active;
     stopButton.disabled = !active;
     startButton.disabled = active;
     pauseButton.textContent = paused ? 'Resume tracking' : 'Pause tracking';
     blinkButton.textContent = 'Blink confirm: ' + (blinkConfirm ? 'ON' : 'OFF');
+    if (modeButton) modeButton.textContent = 'Pointer mode: ' + (pointerMode === 'head' ? 'HEAD' : 'EYE GAZE');
   }
   async function stopCamera(message = 'Camera stopped. The video stream has been released.') {
     if (raf) cancelAnimationFrame(raf);
@@ -119,6 +122,8 @@
       landmarker = await loadLandmarker();
       baseline = null;
       smoothed = null;
+      eyeBaseline = null;
+      eyeSmoothed = null;
       paused = false;
       video.classList.add('is-visible');
       previewOverlay.classList.add('is-hidden');
@@ -147,6 +152,11 @@
           if (face && face[1]) {
             const nose = face[1];
             const sample = { x: nose.x, y: nose.y };
+            if (face[468] && face[473]) {
+              const eyeSample = { x: (face[468].x + face[473].x) / 2, y: (face[468].y + face[473].y) / 2 };
+              if (!eyeSmoothed) eyeSmoothed = eyeSample;
+              else { eyeSmoothed.x += (eyeSample.x - eyeSmoothed.x) * 0.28; eyeSmoothed.y += (eyeSample.y - eyeSmoothed.y) * 0.28; }
+            }
             if (!smoothed) smoothed = sample;
             else {
               const alpha = 0.22;
@@ -154,17 +164,23 @@
               smoothed.y += (sample.y - smoothed.y) * alpha;
             }
             if (baseline) {
-              const x = (0.5 + (smoothed.x - baseline.x) * 3.2) * window.innerWidth;
-              const y = (0.5 + (smoothed.y - baseline.y) * 3.2) * window.innerHeight;
+              let x, y;
+              if (pointerMode === 'eye' && eyeBaseline && eyeSmoothed) {
+                x = (0.5 - (eyeSmoothed.x - eyeBaseline.x) * 7.0) * window.innerWidth;
+                y = (0.5 + (eyeSmoothed.y - eyeBaseline.y) * 8.0) * window.innerHeight;
+              } else {
+                x = (0.5 + (smoothed.x - baseline.x) * 3.2) * window.innerWidth;
+                y = (0.5 + (smoothed.y - baseline.y) * 3.2) * window.innerHeight;
+              }
               updatePointer(x, y);
               setStatus(blinkConfirm ? 'TRACKING · BLINK ON' : 'TRACKING', true);
             }
             const categories = result.faceBlendshapes && result.faceBlendshapes[0] && result.faceBlendshapes[0].categories;
-            const closed = getBlendshape(categories, 'eyeBlinkLeft') > 0.76 && getBlendshape(categories, 'eyeBlinkRight') > 0.76;
+            const closed = getBlendshape(categories, 'eyeBlinkLeft') > 0.58 && getBlendshape(categories, 'eyeBlinkRight') > 0.58;
             if (closed && closedAt === 0) { closedAt = now; blinkConsumed = false; }
             if (!closed && closedAt > 0) {
               const duration = now - closedAt;
-              if (blinkConfirm && !blinkConsumed && duration >= 800 && duration <= 1800) {
+              if (blinkConfirm && !blinkConsumed && duration >= 250 && duration <= 900) {
                 blinkConsumed = true;
                 if (pointer) pointer.classList.add('is-confirming');
                 safeConfirmAtPointer();
@@ -189,8 +205,9 @@
   calibrateButton.addEventListener('click', () => {
     if (!smoothed) { say('Face not detected yet. Face the camera and try calibration again.'); return; }
     baseline = { x: smoothed.x, y: smoothed.y };
+    eyeBaseline = eyeSmoothed ? { x: eyeSmoothed.x, y: eyeSmoothed.y } : null;
     updatePointer(window.innerWidth / 2, window.innerHeight / 2);
-    say('Center calibrated. Small head movements now move the pointer smoothly. Recalibrate any time.');
+    say('Center calibrated for ' + (pointerMode === 'head' ? 'head tracking' : 'eye gaze') + '. Recalibrate after changing pointer mode or moving position.');
     setStatus(blinkConfirm ? 'TRACKING · BLINK ON' : 'TRACKING', true);
   });
   pauseButton.addEventListener('click', () => {
@@ -209,10 +226,17 @@
       tick();
     }
   });
+  if (modeButton) modeButton.addEventListener('click', () => {
+    pointerMode = pointerMode === 'head' ? 'eye' : 'head';
+    if (smoothed) baseline = { x: smoothed.x, y: smoothed.y };
+    if (eyeSmoothed) eyeBaseline = { x: eyeSmoothed.x, y: eyeSmoothed.y };
+    setControls(!!stream);
+    say(pointerMode === 'eye' ? 'Eye-gaze mode enabled. Use Calibrate center while looking at the screen center; small eye movements steer the pointer.' : 'Head-pointer mode enabled. Use Calibrate center while holding a comfortable neutral head position.');
+  });
   blinkButton.addEventListener('click', () => {
     blinkConfirm = !blinkConfirm;
     blinkButton.textContent = 'Blink confirm: ' + (blinkConfirm ? 'ON' : 'OFF');
-    say(blinkConfirm ? 'Blink confirmation enabled. Hold both eyes closed for 0.8–1.8 seconds, then open to confirm a non-destructive button under the pointer.' : 'Blink confirmation disabled. Head tracking remains active.');
+    say(blinkConfirm ? 'Blink confirmation enabled. Close both eyes deliberately for about 0.25–0.9 seconds, then reopen to confirm a safe button under the pointer. Ordinary short blinks may be ignored.' : 'Blink confirmation disabled. Head tracking remains active.');
   });
   stopButton.addEventListener('click', () => stopCamera());
   document.addEventListener('visibilitychange', () => {
@@ -228,8 +252,14 @@
   window.addEventListener('resize', () => {
     if (baseline && pointer && !paused) updatePointer(window.innerWidth / 2, window.innerHeight / 2);
   });
-  if (settingsDialog) settingsDialog.addEventListener('close', () => {
-    if (stream) stopCamera('Settings closed; camera stopped automatically for privacy.');
+  if (settingsDialog) {
+    settingsDialog.addEventListener('close', () => {
+      if (pointer) document.body.appendChild(pointer);
+      if (stream) say('Settings closed. Head/eye tracking continues in the background. Reopen Settings to pause or stop the camera.');
+    });
+  }
+  if (openSettingsButton && settingsDialog) openSettingsButton.addEventListener('click', () => {
+    if (pointer && settingsDialog.open) settingsDialog.appendChild(pointer);
   });
   setControls(false);
 })();
