@@ -24,3 +24,6 @@
 
 /* Keep the camera pointer usable both inside Settings and in the main HUD. */
 .eyenex-camera-pointer{touch-action:none}
+
+.camera-gesture-guide{margin:8px 0 0;padding:9px 10px;border-left:2px solid rgba(112,232,242,.45);background:rgba(112,232,242,.035);font:9px/1.7 var(--mono);letter-spacing:.015em;color:#a8c4d4}
+.eyenex-camera-pointer{will-change:left,top;transition:left 12ms linear,top 12ms linear}
