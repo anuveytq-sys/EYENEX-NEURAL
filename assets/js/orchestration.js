@@ -111,7 +111,7 @@
       .hud-command-panel .command-composer textarea{font-size:8px!important;min-height:20px!important;max-height:28px!important}
       .hud-command-panel .send-button{font-size:7px!important;padding:5px 7px!important}
       .hud-orchestration-panel{right:4px!important;bottom:178px!important;width:clamp(142px,39vw,174px)!important;height:clamp(126px,17vh,148px)!important;max-height:148px!important;padding:6px!important}
-      .hud-starter-panel{left:4px!important;top:auto!important;bottom:178px!important;width:clamp(112px,34vw,148px)!important;max-height:58px!important;padding:4px!important}
+      .hud-starter-panel{left:4px!important;top:calc(3vh + 25vh + 6px)!important;bottom:auto!important;width:clamp(112px,34vw,148px)!important;max-height:58px!important;padding:4px!important}
       body[data-environment="lab"] .hud-starter-panel{left:auto!important;right:4px!important;bottom:178px!important}
       .hud-starter-panel .prompt-chip{font-size:6px!important;padding:3px 4px!important;min-height:20px!important}
       .hud-orchestration-panel .ops-head h3{font-size:8px!important}
