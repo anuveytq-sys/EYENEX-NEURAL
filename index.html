@@ -38,7 +38,7 @@
         <div class="core-grid">
           <aside class="side-stack">
             <section class="panel mission-panel"><div class="panel-heading"><div><span class="panel-kicker">02 / WORKFLOW</span><h2>Mission queue</h2></div><span class="count-pill" id="missionCount">00</span></div><div class="empty-state" id="missionList"><div class="empty-symbol">＋</div><strong>No active missions</strong><p>Ask NEURAL to plan a task. Missions are saved in this browser and can be checked off here.</p></div><div class="mission-toolbar"><small id="missionProgress">0 tasks complete</small><button class="mission-clear" id="clearMissions" type="button">Clear queue</button></div><button class="text-action" id="sampleMission" type="button">Load sample workflow <span>→</span></button></section>
-            <section class="panel system-panel"><div class="panel-heading"><div><span class="panel-kicker">03 / SYSTEM</span><h2>Core status</h2></div><span class="live-label"><i></i> LIVE UI</span></div><div class="status-list"><div><span>Interface</span><strong class="status-good">OPERATIONAL</strong></div><div><span>Local planner</span><strong class="status-good">READY</strong></div><div><span>AI connection</span><strong class="status-wait" id="aiStatus">NOT CONNECTED</strong></div><div><span>Project access</span><strong>NOT CONFIGURED</strong></div><div><span>Eye / head tracking</span><strong>PLANNED</strong></div></div><div class="system-foot"><span class="mini-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>LOCAL FEATURES ONLY</span></div></section>
+            <section class="panel system-panel"><div class="panel-heading"><div><span class="panel-kicker">03 / SYSTEM</span><h2>Core status</h2></div><span class="live-label"><i></i> LIVE UI</span></div><div class="status-list"><div><span>Interface</span><strong class="status-good">OPERATIONAL</strong></div><div><span>Local planner</span><strong class="status-good">READY</strong></div><div><span>AI connection</span><strong class="status-wait" id="aiStatus">NOT CONNECTED</strong></div><div><span>Project access</span><strong>NOT CONFIGURED</strong></div><div><span>Eye / head tracking</span><strong>AVAILABLE</strong></div></div><div class="system-foot"><span class="mini-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>LOCAL FEATURES ONLY</span></div></section>
           </aside>
         </div>
       </section>
@@ -75,13 +75,14 @@
         <section class="camera-control-card" aria-labelledby="cameraControlTitle">
           <div class="camera-control-heading"><span class="panel-kicker">MULTIMODAL CONTROLS / 01</span><span class="camera-status" id="cameraStatus" role="status">CAMERA OFF</span></div>
           <h3 id="cameraControlTitle">Head-pointer control</h3>
-          <p class="camera-control-copy">Optional camera-based pointer control with center calibration, smoothing, pause, and deliberate blink confirmation. Camera access starts only when you press Start.</p>
+          <p class="camera-control-copy">Optional head-pointer or eye-gaze control with center calibration, smoothing, pause, and opt-in blink confirmation. Camera access starts only when you press Start. Tracking continues when this Settings dialog closes; reopen Settings to pause or stop it.</p>
           <div class="camera-preview-wrap"><video id="cameraPreview" muted playsinline aria-label="Mirrored camera preview"></video><div class="camera-preview-overlay" id="cameraPreviewOverlay">PREVIEW OFF</div></div>
           <div class="camera-control-actions">
             <button class="settings-action primary" id="cameraStart" type="button">Start tracking</button>
             <button class="settings-action" id="cameraCalibrate" type="button" disabled>Calibrate center</button>
             <button class="settings-action" id="cameraPause" type="button" disabled>Pause tracking</button>
             <button class="settings-action secondary" id="cameraBlink" type="button" disabled>Blink confirm: OFF</button>
+            <button class="settings-action" id="cameraMode" type="button" disabled>Pointer mode: HEAD</button>
             <button class="settings-action danger" id="cameraStop" type="button" disabled>Stop camera</button>
           </div>
           <p class="camera-feedback" id="cameraFeedback" role="status" aria-live="polite">Camera is off. No camera access is requested until you start it.</p>
