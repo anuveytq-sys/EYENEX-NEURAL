@@ -1,0 +1,223 @@
+/* EYENEX NEURAL — fixed-frame central HUD inspired by the user's JARVIS interface.
+   The document never scrolls. Only the conversation and individual panels can scroll. */
+:root {
+  --hud-cyan: #00eaff;
+  --hud-blue: #087dff;
+  --hud-line: rgba(0, 220, 255, .26);
+  --hud-panel: rgba(1, 15, 31, .82);
+}
+html, body {
+  width: 100% !important; height: 100% !important; min-height: 0 !important;
+  margin: 0 !important; overflow: hidden !important;
+  overscroll-behavior: none !important;
+  background: radial-gradient(ellipse at 50% 42%, #06294a 0%, #021426 30%, #010811 70%, #00040a 100%) !important;
+}
+body { position: relative; }
+body::before {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 20;
+  opacity: .5;
+  background: repeating-linear-gradient(0deg, rgba(0,220,255,.018) 0, rgba(0,220,255,.018) 1px, transparent 1px, transparent 4px);
+}
+.ambient { opacity: .12; filter: blur(80px); }
+.app-shell { width: 100%; height: 100%; min-height: 0; overflow: hidden; }
+.rail {
+  width: 54px; flex: 0 0 54px; height: 100dvh; min-height: 0;
+  padding: 14px 0; gap: 12px; background: rgba(0,5,12,.78);
+  border-right: 1px solid rgba(0,220,255,.16);
+}
+.brand-mark { width: 31px; height: 31px; border-radius: 9px; }
+.rail-divider { margin: 4px 0; }
+.rail-button[data-env] { display: none !important; }
+.main-area {
+  position: relative; isolation: isolate; width: calc(100% - 54px); height: 100dvh;
+  min-width: 0; min-height: 0; margin: 0; padding: 0 18px;
+  display: block; overflow: hidden;
+}
+.topbar {
+  position: absolute; top: 12px; left: 18px; right: 18px; height: 52px;
+  z-index: 15; padding: 0 15px; border: 1px solid var(--hud-line);
+  border-radius: 3px; background: linear-gradient(105deg, rgba(2,31,59,.9), rgba(0,8,19,.83));
+  box-shadow: 0 0 25px rgba(0,150,255,.08), inset 0 0 20px rgba(0,180,255,.035);
+  backdrop-filter: blur(14px);
+}
+.wordmark-icon { border-radius: 50%; width: 27px; height: 27px; }
+.wordmark strong { font-size: 11px; letter-spacing: .17em; }
+.wordmark small { font-size: 7px; letter-spacing: .12em; }
+.topbar-right { gap: 12px; }
+.system-state { font-size: 8px; letter-spacing: .12em; }
+.clock { font-size: 9px; }
+.settings-trigger { border-radius: 3px; padding: 7px 10px; border-color: var(--hud-line); background: rgba(0,150,255,.07); }
+.environment-tabs { display: none !important; }
+.environment {
+  display: none; position: absolute; top: 76px; right: 0; bottom: 184px; left: 0;
+  height: auto; min-height: 0; overflow: hidden; margin: 0; padding: 0;
+}
+.environment.active { display: block; }
+.hero-row {
+  position: absolute; inset: 0; display: block; min-height: 0; height: auto;
+  padding: 0; overflow: visible;
+}
+.hero-row > div:first-child { display: none !important; }
+.core-visual {
+  position: absolute; left: 50%; top: 48%; transform: translate(-50%, -50%);
+  width: min(56vw, 570px); height: min(55vh, 420px); min-height: 0; max-height: none;
+  border: 1px solid rgba(0,220,255,.10); border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(0,130,255,.07), transparent 69%);
+}
+.core-visual:before {
+  inset: 8%; background-size: 27px 27px;
+  opacity: .7;
+}
+.core-halo { width: 180px; height: 180px; background: #00dfff; filter: blur(65px); opacity: .17; }
+.core-sphere { width: clamp(95px, 12vw, 150px); height: clamp(95px, 12vw, 150px); }
+.orbit-a { width: min(32vw, 285px); height: min(12vw, 110px); }
+.orbit-b { width: min(30vw, 275px); height: min(15vw, 130px); }
+.orbit-c { width: min(37vw, 335px); height: min(24vw, 205px); }
+.visual-tag { font-size: 7px; }
+.tag-top { top: 12%; right: 12%; }
+.tag-bottom { bottom: 12%; left: 10%; }
+.core-grid, .side-stack { display: contents !important; }
+.command-panel {
+  position: absolute; z-index: 14; left: 50%; bottom: 12px; transform: translateX(-50%);
+  width: min(690px, calc(100% - 36px)); height: 158px; min-height: 0; max-height: 158px;
+  display: flex; flex-direction: column; overflow: hidden; border-radius: 4px;
+  border-color: rgba(0,220,255,.32);
+  background: linear-gradient(145deg, rgba(2,25,47,.94), rgba(0,7,17,.94));
+  box-shadow: 0 0 30px rgba(0,140,255,.09), inset 0 0 25px rgba(0,160,255,.035);
+}
+.command-panel .panel-heading { display: none; }
+.command-panel .conversation { flex: 1 1 auto; min-height: 0; max-height: none; overflow-y: auto; padding: 10px 14px 5px; }
+.command-panel .message { gap: 8px; }
+.command-panel .message-mark { width: 22px; height: 22px; flex-basis: 22px; font-size: 10px; border-radius: 50%; }
+.command-panel .message small { font-size: 7px; }
+.command-panel .message p { font-size: 10px; line-height: 1.4; margin-top: 3px; }
+.command-panel .starter-prompts { margin: 8px 0 0 30px; gap: 5px; }
+.command-panel .prompt-chip { padding: 5px 7px; font-size: 8px; }
+.command-composer { flex: 0 0 auto; margin: 5px 9px 9px; padding: 7px 9px; border-radius: 3px; }
+.command-composer textarea { min-height: 24px; max-height: 42px; resize: none; font-size: 10px; }
+.composer-footer { padding-top: 6px; margin-top: 2px; }
+.send-button { padding: 6px 9px; font-size: 9px; border-radius: 3px; }
+.mission-panel, .system-panel {
+  position: absolute; z-index: 8; width: clamp(180px, 18vw, 238px); height: min(33vh, 252px);
+  min-height: 0; max-height: none; overflow-y: auto; border-radius: 3px;
+  background: linear-gradient(145deg, rgba(2,25,47,.85), rgba(0,7,17,.78));
+  border-color: rgba(0,220,255,.23); box-shadow: 0 0 23px rgba(0,140,255,.07), inset 0 0 18px rgba(0,160,255,.025);
+}
+.mission-panel { left: 16px; top: 24%; }
+.system-panel { right: 16px; top: 24%; }
+.panel-heading { padding: 12px 13px 10px; }
+.panel-heading h2 { font-size: 11px; }
+.panel-kicker { font-size: 7px; letter-spacing: .12em; color: #5c9ab0; }
+.empty-state { padding: 16px 10px 10px; }
+.empty-state p { font-size: 9px; }
+.status-list { padding: 5px 12px; }
+.status-list > div { padding: 7px 0; font-size: 9px; gap: 6px; }
+.status-list strong { font-size: 7px; }
+.system-foot { padding: 8px 12px 0; font-size: 7px; }
+.mission-toolbar { padding: 0 12px 8px; }
+.text-action { width: calc(100% - 24px); margin: 0 12px; padding-top: 8px; font-size: 9px; }
+.lab-heading { display: none !important; }
+.lab-grid, .lab-side { display: contents !important; }
+.analysis-panel {
+  position: absolute; left: 3%; top: 8%; bottom: 3%; width: 61%;
+  height: auto; max-height: none; min-height: 0; overflow-y: auto; border-radius: 3px;
+  background: linear-gradient(145deg, rgba(2,25,47,.9), rgba(0,7,17,.88));
+}
+.insight-panel, .boundary-panel {
+  position: absolute; right: 2%; width: 29%; height: 39%; max-height: none; min-height: 0;
+  overflow-y: auto; border-radius: 3px; background: linear-gradient(145deg, rgba(2,25,47,.87), rgba(0,7,17,.82));
+}
+.insight-panel { top: 7%; }
+.boundary-panel { top: 49%; }
+.analysis-form { padding: 13px; }
+.analysis-form textarea { min-height: 70px; resize: vertical; }
+.analysis-result { min-height: 0; padding: 12px 13px; }
+.insight-map { padding: 12px 10px 0; }
+.trust-list { padding: 5px 13px 0; }
+.trust-list li { font-size: 9px; padding: 8px 0; }
+.footer { display: none !important; }
+body[data-environment="lab"] .core-visual { display: none; }
+.panel {
+  scrollbar-width: thin; scrollbar-color: rgba(0,220,255,.34) rgba(0,0,0,.14);
+  overscroll-behavior: contain;
+}
+.panel::-webkit-scrollbar, .conversation::-webkit-scrollbar { width: 5px; height: 5px; }
+.panel::-webkit-scrollbar-thumb, .conversation::-webkit-scrollbar-thumb { background: rgba(0,220,255,.28); border-radius: 8px; }
+.panel::-webkit-scrollbar-track, .conversation::-webkit-scrollbar-track { background: rgba(0,0,0,.12); }
+.settings-dialog, .about-dialog { max-height: calc(100dvh - 24px); }
+.settings-layout { max-height: calc(100dvh - 24px); }
+.settings-body { overflow-y: auto; overscroll-behavior: contain; }
+@media (max-width: 760px) {
+  .rail { width: 42px; flex-basis: 42px; padding: 10px 0; }
+  .main-area { width: calc(100% - 42px); padding: 0 8px; }
+  .topbar { top: 7px; left: 8px; right: 8px; height: 43px; padding: 0 8px; }
+  .wordmark { gap: 6px; }
+  .wordmark-icon { width: 23px; height: 23px; font-size: 13px; }
+  .wordmark strong { font-size: 8px; letter-spacing: .1em; }
+  .wordmark small { font-size: 5px; letter-spacing: .06em; }
+  .topbar-right { gap: 5px; }
+  .system-state { display: none; }
+  .top-separator { display: none; }
+  .clock { font-size: 7px; }
+  .settings-trigger { padding: 5px 6px; font-size: 8px; }
+  .settings-word { display: none; }
+  .environment { top: 58px; bottom: 174px; }
+  .core-visual { top: 48%; width: min(68vw, 390px); height: min(38vh, 300px); }
+  .core-sphere { width: 92px; height: 92px; }
+  .orbit-a { width: 48vw; height: 18vw; }
+  .orbit-b { width: 46vw; height: 25vw; }
+  .orbit-c { width: 58vw; height: 38vw; }
+  .mission-panel, .system-panel { top: 8px; width: calc(50% - 13px); height: 124px; }
+  .mission-panel { left: 4px; }
+  .system-panel { right: 4px; }
+  .panel-heading { padding: 8px 8px 6px; }
+  .panel-heading h2 { font-size: 9px; margin-top: 4px; }
+  .panel-kicker { font-size: 6px; }
+  .empty-state { padding: 7px 5px; }
+  .empty-symbol { width: 23px; height: 23px; margin-bottom: 5px; font-size: 14px; }
+  .empty-state strong { font-size: 9px; }
+  .empty-state p { font-size: 7px; line-height: 1.35; }
+  .mission-toolbar { padding: 0 7px 5px; font-size: 7px; }
+  .text-action { display: none; }
+  .status-list { padding: 2px 8px; }
+  .status-list > div { padding: 4px 0; font-size: 7px; }
+  .status-list strong { font-size: 6px; }
+  .system-foot { display: none; }
+  .command-panel { left: 50%; bottom: 7px; width: calc(100% - 12px); height: 158px; max-height: 158px; }
+  .command-panel .conversation { padding: 8px 9px 4px; }
+  .command-panel .message p { font-size: 9px; }
+  .command-composer { margin: 4px 6px 6px; padding: 6px 7px; }
+  .command-composer textarea { min-height: 22px; max-height: 36px; font-size: 9px; }
+  .composer-footer > span { font-size: 7px; }
+  .send-button { font-size: 8px; padding: 5px 7px; }
+  .lab-analysis, .analysis-panel { left: 4px; top: 8px; width: calc(61% - 4px); bottom: 4px; }
+  .insight-panel, .boundary-panel { right: 4px; width: calc(39% - 8px); height: 47%; }
+  .insight-panel { top: 4px; }
+  .boundary-panel { top: 51%; }
+  .analysis-form { padding: 8px; }
+  .analysis-form>label { font-size: 7px; }
+  .analysis-form textarea { min-height: 52px; font-size: 9px; padding: 7px; }
+  .analysis-options { gap: 5px; margin: 8px 0; }
+  .analysis-options label { font-size: 7px; }
+  .primary-button { font-size: 8px; padding: 7px; }
+  .analysis-result { padding: 8px; }
+  .result-placeholder p { font-size: 8px; }
+  .insight-map { padding: 8px 4px 0; }
+  .map-node { padding: 6px 2px; font-size: 6px; }
+  .map-node span { font-size: 7px; }
+  .map-branches { margin-top: 8px; height: 10px; }
+  .map-outcomes div { font-size: 5px; padding: 5px 1px; }
+  .map-caption { font-size: 6px; margin-top: 7px; }
+  .trust-list { padding: 2px 8px; }
+  .trust-list li { font-size: 7px; padding: 6px 0; }
+}
+@media (max-width: 390px) {
+  .rail { width: 34px; flex-basis: 34px; }
+  .main-area { width: calc(100% - 34px); }
+  .brand-mark { width: 25px; height: 25px; }
+  .main-area .topbar-right { gap: 4px; }
+  .wordmark small { display: none; }
+  .environment { top: 54px; bottom: 170px; }
+  .mission-panel, .system-panel { height: 116px; }
+  .command-panel { height: 154px; max-height: 154px; }
+}
