@@ -221,3 +221,39 @@ body[data-environment="lab"] .core-visual { display: none; }
   .mission-panel, .system-panel { height: 116px; }
   .command-panel { height: 154px; max-height: 154px; }
 }
+
+/* Premium neural-core upgrade: real-time shaded WebGL sphere with tactile rotation. */
+.rail-divider { display: none !important; }
+.rail { align-items: center; }
+.brand-mark {
+  width: 42px; height: 42px; border-radius: 13px; transform: none;
+  background: linear-gradient(145deg, rgba(0,234,255,.16), rgba(4,34,64,.7));
+  border-color: rgba(0,234,255,.7); box-shadow: 0 0 24px rgba(0,190,255,.18), inset 0 0 15px rgba(0,234,255,.08);
+}
+.brand-glyph { transform: none; text-shadow: 0 0 15px rgba(0,234,255,.75); }
+.core-visual {
+  width: min(68vw, 820px) !important; height: min(70vh, 610px) !important;
+  top: 47% !important; overflow: visible !important; border: 0 !important;
+  background: radial-gradient(ellipse at center, rgba(0,103,180,.12), transparent 67%) !important;
+  filter: drop-shadow(0 0 25px rgba(0,120,255,.08));
+  touch-action: pan-y;
+}
+.neural-core-canvas {
+  position: absolute; inset: 0; display: block; width: 100%; height: 100%;
+  z-index: 3; cursor: grab; outline: none; touch-action: none;
+}
+.neural-core-canvas:active { cursor: grabbing; }
+.neural-core-canvas:focus-visible { filter: drop-shadow(0 0 8px rgba(0,234,255,.55)); }
+.core-visual .core-sphere, .core-visual .core-halo { display: none !important; }
+.core-visual .orbit { z-index: 4; border-width: 1px; border-color: rgba(0,219,255,.35); box-shadow: 0 0 13px rgba(0,185,255,.09); }
+.core-visual .orbit-a { animation: neural-orbit-a 18s linear infinite; }
+.core-visual .orbit-b { animation: neural-orbit-b 23s linear infinite reverse; }
+.core-visual .orbit-c { animation: neural-orbit-c 31s linear infinite; }
+.core-visual .orbit-node { z-index: 5; box-shadow: 0 0 14px currentColor, 0 0 28px rgba(0,200,255,.35); }
+.core-visual .visual-tag { z-index: 6; border-color: rgba(0,220,255,.24); background: rgba(0,12,28,.75); box-shadow: 0 0 18px rgba(0,180,255,.08); }
+@keyframes neural-orbit-a { from { transform: rotate(-28deg) rotate(0deg); } to { transform: rotate(-28deg) rotate(360deg); } }
+@keyframes neural-orbit-b { from { transform: rotate(53deg) rotate(0deg); } to { transform: rotate(53deg) rotate(360deg); } }
+@keyframes neural-orbit-c { from { transform: rotate(-65deg) rotate(0deg); } to { transform: rotate(-65deg) rotate(360deg); } }
+@media (max-width: 760px) {
+  .core-visual { width: min(78vw, 520px) !important; height: min(52vh, 400px) !important; top: 42% !important; }
+}
