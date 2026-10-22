@@ -535,6 +535,122 @@
     result.innerHTML = '<div class="result-content"><span class="panel-kicker">LOCAL STRUCTURE · NOT AI-GENERATED</span><h3>' + escapeHTML(subject.length > 90 ? subject.slice(0, 87) + '…' : subject) + '</h3><ul>' + points.map(([title, detail]) => '<li><strong>' + escapeHTML(title) + ':</strong> ' + escapeHTML(detail) + '</li>').join('') + '</ul><p class="demo-note">Local checklist only: this is not a verified analysis of your subject. No external sources or project files were read.</p></div>';
   }
 
+  // Permissioned project intelligence: scan only a user-supplied PUBLIC GitHub repository.
+  // File contents are not fetched; only repository metadata, README, and the file-name map are read.
+  const repoScanForm = $('#repoScanForm');
+  if (repoScanForm) {
+    const repoUrlInput = $('#repoUrl');
+    const repoConsent = $('#repoSendToAI');
+    const repoButton = $('#repoScanButton');
+    const repoOutput = $('#repoScanResult');
+
+    function decodeBase64Utf8(value) {
+      const binary = atob(String(value || '').replace(/\s/g, ''));
+      const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
+      return new TextDecoder().decode(bytes);
+    }
+
+    async function githubJson(url) {
+      const response = await fetch(url, {
+        headers: { 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' }
+      });
+      if (!response.ok) {
+        if (response.status === 404) throw new Error('Repository not found or not public. Check the URL and repository visibility.');
+        if (response.status === 403 || response.status === 429) throw new Error('GitHub API rate limit reached. Wait a little and try again.');
+        throw new Error('GitHub returned HTTP ' + response.status + '. Please retry later.');
+      }
+      return response.json();
+    }
+
+    repoScanForm.addEventListener('submit', async event => {
+      event.preventDefault();
+      let owner, name;
+      try {
+        const parsed = new URL(repoUrlInput.value.trim());
+        if (parsed.hostname.toLowerCase() !== 'github.com') throw new Error('Enter a github.com repository URL.');
+        const parts = parsed.pathname.split('/').filter(Boolean);
+        if (parts.length < 2) throw new Error('Use a repository URL in the form github.com/owner/repository.');
+        owner = parts[0];
+        name = parts[1].replace(/\.git$/i, '');
+        if (!/^[A-Za-z0-9_.-]+$/.test(owner) || !/^[A-Za-z0-9_.-]+$/.test(name)) throw new Error('That repository URL does not look valid.');
+      } catch (error) {
+        repoOutput.textContent = error.message || 'Enter a valid public GitHub repository URL.';
+        return;
+      }
+
+      repoButton.disabled = true;
+      repoButton.textContent = 'Scanning public metadata…';
+      repoOutput.textContent = 'Connecting to GitHub public API. No repository files are being executed.';
+      try {
+        const base = 'https://api.github.com/repos/' + encodeURIComponent(owner) + '/' + encodeURIComponent(name);
+        const meta = await githubJson(base);
+        if (meta.private) throw new Error('Private repositories are not supported by this public-only scanner.');
+        const branch = meta.default_branch || 'main';
+        const tree = await githubJson(base + '/git/trees/' + encodeURIComponent(branch) + '?recursive=1');
+        let readme = '';
+        try {
+          const readmeData = await githubJson(base + '/readme');
+          if (readmeData && readmeData.encoding === 'base64') readme = decodeBase64Utf8(readmeData.content).slice(0, 14000);
+        } catch (error) {
+          if (!/404|not found/i.test(error.message || '')) throw error;
+        }
+        const files = (tree.tree || [])
+          .filter(item => item.type === 'blob')
+          .map(item => item.path)
+          .slice(0, 180);
+        const folders = [...new Set(files.map(path => path.includes('/') ? path.split('/')[0] : '(root)'))].slice(0, 35);
+        const summary = [
+          'Repository: ' + (meta.full_name || owner + '/' + name),
+          'Description: ' + (meta.description || 'Not provided'),
+          'Default branch: ' + branch,
+          'Primary language: ' + (meta.language || 'Not detected'),
+          'Stars: ' + (meta.stargazers_count || 0) + ' · Forks: ' + (meta.forks_count || 0),
+          'Repository files indexed: ' + ((tree.tree || []).length) + (tree.truncated ? ' (GitHub tree was truncated)' : ''),
+          'File map sample (up to 180 paths):\n' + (files.length ? files.join('\n') : '(No files listed)'),
+          'Top-level folders: ' + (folders.join(', ') || '(none)'),
+          'README excerpt:\n' + (readme || '(No readable README found)')
+        ].join('\n\n');
+
+        repoOutput.innerHTML = '<div class="repo-result-card"><div class="repo-result-top"><span class="panel-kicker">PUBLIC REPOSITORY · SCAN COMPLETE</span><span class="repo-result-badge">READ-ONLY</span></div><h4></h4><p class="repo-result-meta"></p><div class="repo-result-stats"></div><p class="repo-result-note"></p><details><summary>View scan boundaries</summary><p>Read-only public metadata, README excerpt, and file names only. Source files were not downloaded, executed, or changed. The file list is capped to 180 paths for this scan.</p></details><div class="repo-result-ai"></div></div>';
+        $('.repo-result-card h4', repoOutput).textContent = meta.full_name || owner + '/' + name;
+        $('.repo-result-meta', repoOutput).textContent = meta.description || 'No repository description provided.';
+        $('.repo-result-stats', repoOutput).textContent = 'LANGUAGE ' + (meta.language || 'UNKNOWN') + '  ·  ★ ' + (meta.stargazers_count || 0) + '  ·  ' + files.length + ' FILE PATHS SHOWN';
+        $('.repo-result-note', repoOutput).textContent = readme ? 'README detected (' + readme.length + ' characters included in scan context).' : 'No readable README detected. Review is based on public metadata and file names.';
+        const aiBox = $('.repo-result-ai', repoOutput);
+
+        if (repoConsent.checked && getActiveKey()) {
+          aiBox.textContent = 'Sending the repository summary to your configured AI model, as requested…';
+          try {
+            const review = await askOpenRouter([
+              { role: 'system', content: 'You are EYENEX NEURAL Project Intelligence. Review only the supplied public repository metadata, file paths, and README excerpt. Do not claim to have read source files, run code, checked live deployments, or verified security. Separate direct observations from hypotheses, identify architecture clues and missing information, give prioritized review questions and safe next steps, and explicitly state uncertainty.' },
+              { role: 'user', content: 'Review this user-selected public GitHub repository summary. Do not assume file contents beyond the README excerpt and file names provided.\n\n' + summary }
+            ]);
+            aiBox.textContent = review;
+            const label = document.createElement('span');
+            label.className = 'panel-kicker';
+            label.textContent = 'AI-ASSISTED REVIEW · ' + getModel();
+            aiBox.prepend(label);
+            notify('Public repository scan and AI review completed.');
+          } catch (error) {
+            aiBox.textContent = 'AI review unavailable: ' + (error.message || 'request failed') + ' The public metadata scan is still available above.';
+            notify('Repository scan complete; AI review failed.');
+          }
+        } else {
+          aiBox.textContent = repoConsent.checked
+            ? 'AI review was requested, but no active OpenRouter key is available. Add your own key in Settings to enable it. No repository summary was sent to an AI model.'
+            : 'Local scan only. The repository summary was not sent to an AI model. Tick the opt-in box before a scan if you want deeper AI review.';
+          notify('Public repository scan completed locally.');
+        }
+      } catch (error) {
+        repoOutput.textContent = error.message || 'Repository scan failed. Check the URL and internet connection.';
+        notify('Repository scan failed.');
+      } finally {
+        repoButton.disabled = false;
+        repoButton.innerHTML = 'Scan public repository <span>↗</span>';
+      }
+    });
+  }
+
   const settingsDialog = $('#settingsDialog');
   $('#openSettings').addEventListener('click', () => {
     loadSettingsIntoForm();
