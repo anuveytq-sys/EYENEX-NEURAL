@@ -39,7 +39,7 @@
     /* Command stays at the bottom; orchestration sits above it in its own scrollable HUD. */
     .hud-command-panel{
       position:absolute!important;z-index:14;left:50%!important;right:auto!important;top:auto!important;bottom:12px!important;
-      transform:translateX(-50%)!important;width:min(620px,calc(100% - 36px))!important;height:112px!important;max-height:112px!important;min-height:0!important;
+      transform:translateX(-50%)!important;width:min(620px,calc(100% - 36px))!important;height:82px!important;max-height:82px!important;min-height:0!important;
       margin:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;box-sizing:border-box;
       border-radius:4px!important;border-color:rgba(0,220,255,.32)!important;
       background:linear-gradient(145deg,rgba(2,25,47,.94),rgba(0,7,17,.94))!important;
@@ -70,11 +70,11 @@
 
     /* Mission orchestration belongs to Neural Core; keep the Intelligence Lab workspace clear. */
     body[data-environment="lab"] .hud-orchestration-panel{display:none!important;}
-    body[data-environment="lab"] .hud-starter-panel{left:auto;right:16px;top:auto;bottom:154px;width:clamp(128px,12vw,148px);max-height:48px;}
+    body[data-environment="lab"] .hud-starter-panel{left:auto;right:16px;top:calc(8% + 42% + 10px);bottom:auto;width:clamp(112px,10vw,132px);max-height:52px;}
 
     .hud-orchestration-panel{
       position:absolute!important;z-index:10;left:auto!important;right:16px!important;top:auto!important;bottom:184px!important;
-      width:clamp(142px,13vw,172px)!important;height:clamp(140px,17vh,154px)!important;max-height:154px!important;min-height:0!important;
+      width:clamp(105px,9vw,124px)!important;height:clamp(132px,16vh,146px)!important;max-height:146px!important;min-height:0!important;
       margin:0!important;box-sizing:border-box;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain;touch-action:pan-y;
       scrollbar-width:thin;scrollbar-color:rgba(0,220,255,.38) rgba(0,0,0,.15);
       padding:9px!important;border:1px solid rgba(0,220,255,.25);border-radius:4px;
@@ -102,7 +102,7 @@
     .hud-orchestration-panel button{touch-action:manipulation}
 
     @media(max-width:760px){
-      .hud-command-panel{left:50%!important;bottom:7px!important;width:calc(100% - 12px)!important;height:100px!important;max-height:100px!important}
+      .hud-command-panel{left:50%!important;bottom:7px!important;width:calc(100% - 12px)!important;height:78px!important;max-height:78px!important}
       .hud-command-panel .conversation{padding:7px 8px 3px!important}
       .hud-command-panel .starter-prompts{gap:5px!important;margin-bottom:5px!important}
       .hud-command-panel .prompt-chip{font-size:8px!important;padding:6px 8px!important;min-height:28px}
@@ -110,9 +110,9 @@
       .hud-command-panel .command-composer{margin:3px 5px 5px!important;padding:6px 7px!important}
       .hud-command-panel .command-composer textarea{font-size:8px!important;min-height:20px!important;max-height:28px!important}
       .hud-command-panel .send-button{font-size:7px!important;padding:5px 7px!important}
-      .hud-orchestration-panel{right:4px!important;bottom:178px!important;width:clamp(128px,34vw,150px)!important;height:clamp(118px,15vh,136px)!important;max-height:136px!important;padding:6px!important}
+      .hud-orchestration-panel{right:4px!important;bottom:178px!important;width:clamp(108px,29vw,128px)!important;height:clamp(118px,15vh,136px)!important;max-height:136px!important;padding:6px!important}
       .hud-starter-panel{left:4px!important;top:calc(3vh + 25vh + 6px)!important;bottom:auto!important;width:clamp(112px,34vw,148px)!important;max-height:58px!important;padding:4px!important}
-      body[data-environment="lab"] .hud-starter-panel{left:auto!important;right:4px!important;bottom:154px!important;width:clamp(120px,32vw,142px)!important;max-height:48px!important}
+      body[data-environment="lab"] .hud-starter-panel{left:auto!important;right:4px!important;top:calc(7% + 42% + 8px)!important;bottom:auto!important;width:clamp(108px,29vw,128px)!important;max-height:48px!important}
       .hud-starter-panel .prompt-chip{font-size:6px!important;padding:3px 4px!important;min-height:20px!important}
       .hud-orchestration-panel .ops-head h3{font-size:8px!important}
       .hud-orchestration-panel .ops-head-right{font-size:5px!important;gap:3px}
