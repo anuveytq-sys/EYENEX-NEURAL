@@ -48,7 +48,7 @@ The settings panel also supports showing/hiding the currently typed key and remo
 - Rule-based draft task plans for planning-style commands.
 - Mission queue with task status cycling, individual task removal, clear-queue control, and sample workflow.
 - Mission queue persisted in the current browser using localStorage (not synced across devices).
-- Optional camera-based head-pointer control using face landmarks, center calibration, smoothing, pause/resume, and opt-in deliberate long-blink confirmation. Camera frames are processed locally in the browser and are not saved or uploaded by this feature.
+- Optional camera-based head-pointer and eye-gaze control using face/iris landmarks, center calibration, smoothing, pause/resume, and opt-in blink confirmation. Tracking can continue after the Settings dialog closes and is stopped only with Stop camera or when the page is refreshed/closed. Camera frames are processed locally in the browser and are not saved or uploaded by this feature.
 - Independent scrollable panels, compact height limits, and visible scrollbar styling.
 - System status distinguishes configured/connected AI from a local-only state.
 - About dialog and reduced-motion support.
@@ -69,7 +69,7 @@ This is a static frontend prototype and does not need a build step.
 3. **Safer public AI architecture:** introduce a secure server-side proxy or a user-controlled authorization flow before a broad public launch. Never place a shared private API key in frontend code or Git.
 4. **Project intelligence:** public GitHub repository reconnaissance is now implemented for metadata, README excerpts, and file maps. Deeper source-file review and private-repository access remain future work and require explicit permissioned integration.
 5. **Task orchestration:** add reliable execution logs, approval checkpoints, permissions, and safe recovery before any consequential actions.
-6. **Multimodal controls:** optional camera-based head-pointer tracking with center calibration, smoothing, pause/resume, and opt-in deliberate blink confirmation. *(Implemented as an opt-in browser feature; real-device testing is required.)*
+6. **Multimodal controls:** optional camera-based head-pointer and eye-gaze tracking with center calibration, smoothing, pause/resume, persistent tracking across Settings close, and opt-in blink confirmation. *(Implemented as an opt-in browser feature; real-device testing is required.)*
 7. **Publishing:** GitHub Pages can host the static frontend. Keep server-side AI calls and secrets outside the published frontend.
 
 ## Architecture direction
