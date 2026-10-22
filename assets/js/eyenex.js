@@ -26,19 +26,9 @@
     const isCore = name === 'core';
     $('#coreEnvironment').classList.toggle('active', isCore);
     $('#labEnvironment').classList.toggle('active', !isCore);
-    $$('.env-tab').forEach(button => {
-      const selected = button.dataset.env === name;
-      button.classList.toggle('selected', selected);
-      button.setAttribute('aria-pressed', String(selected));
-    });
-    $$('.rail-button[data-env]').forEach(button => {
-      const selected = button.dataset.env === name;
-      button.classList.toggle('active', selected);
-      button.setAttribute('aria-pressed', String(selected));
-    });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.body.dataset.environment = isCore ? 'core' : 'lab';
   }
-  $$('.env-tab, .rail-button[data-env]').forEach(button => button.addEventListener('click', () => setEnvironment(button.dataset.env)));
+  document.body.dataset.environment = 'core';
 
   const conversation = $('#conversation');
   const commandInput = $('#commandInput');
@@ -245,6 +235,25 @@
     event.preventDefault();
     const value = commandInput.value.trim();
     if (!value || aiBusy) return;
+
+    // Environment navigation is local and works even without an AI key.
+    const environmentCommand = value.toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+    const opensLab = /\b(open|launch|show|switch to|go to|enter|activate)\b.*\b(intelligence lab|lab environment|analysis lab)\b/.test(environmentCommand)
+      || /\b(intelligence lab|lab environment|analysis lab)\b.*\b(open|launch|show|switch)\b/.test(environmentCommand);
+    const opensCore = /\b(open|launch|show|switch to|go to|enter|activate)\b.*\b(neural core|core environment|command center|command centre)\b/.test(environmentCommand)
+      || /\b(neural core|core environment|command center|command centre)\b.*\b(open|launch|show|switch)\b/.test(environmentCommand);
+    if (opensLab || opensCore) {
+      const destination = opensLab ? 'lab' : 'core';
+      setEnvironment(destination);
+      appendMessage('user', 'YOU', value);
+      commandInput.value = '';
+      commandInput.style.height = 'auto';
+      appendMessage('assistant', 'EYENEX NAVIGATION', destination === 'lab'
+        ? 'Intelligence Lab opened. Type “open Neural Core” here whenever you want to return.'
+        : 'Neural Core opened. Type “open Intelligence Lab” here to switch environments.');
+      notify(destination === 'lab' ? 'Intelligence Lab opened.' : 'Neural Core opened.');
+      return;
+    }
     const isPlan = /\b(plan|break down|steps|task list|make a workflow|organize this|create a mission)\b/i.test(value);
     appendMessage('user', 'YOU', value);
     commandInput.value = '';
