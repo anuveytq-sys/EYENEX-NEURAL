@@ -234,7 +234,7 @@
                 x = (0.5 - (eyeSmoothed.x - eyeBaseline.x) * 7.0) * window.innerWidth;
                 y = (0.5 + (eyeSmoothed.y - eyeBaseline.y) * 8.0) * window.innerHeight;
               } else {
-                x = (0.5 + (smoothed.x - baseline.x) * 3.2) * window.innerWidth;
+                x = (0.5 - (smoothed.x - baseline.x) * 3.2) * window.innerWidth;
                 y = (0.5 + (smoothed.y - baseline.y) * 3.2) * window.innerHeight;
               }
               updatePointer(x, y);
