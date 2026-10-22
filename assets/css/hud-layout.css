@@ -462,3 +462,172 @@ body[data-environment="lab"] .core-visual { display: none; }
   .core-visual { top: 59% !important; height: min(39vh, 270px) !important; }
   .core-visual::after { display: none; }
 }
+
+
+/* Final layout pass: reveal the full Neural Core, reduce composer footprint,
+   and give Intelligence Lab a restrained central HUD instead of oversized cards. */
+.rail #helpButton, .rail .rail-button[aria-label="About EYENEX"] { display: none !important; }
+.rail .status-dot { margin-top: auto; margin-bottom: 9px; }
+.rail .brand-mark { margin-bottom: 14px; }
+.rail .brand-mark::after { content: "EYENEX"; }
+.environment { bottom: 136px !important; }
+.command-panel {
+  bottom: 9px !important;
+  width: min(620px, calc(100% - 42px)) !important;
+  height: 112px !important;
+  max-height: 112px !important;
+  border-radius: 8px;
+}
+.command-panel .conversation { padding: 7px 12px 2px !important; }
+.command-panel .message-mark { width: 19px !important; height: 19px !important; flex-basis: 19px !important; }
+.command-panel .message p { font-size: 9px !important; line-height: 1.3 !important; }
+.command-panel .starter-prompts { margin-top: 4px !important; gap: 4px !important; }
+.command-panel .prompt-chip { padding: 3px 6px !important; font-size: 7px !important; }
+.command-composer { margin: 3px 7px 6px !important; padding: 5px 7px !important; }
+.command-composer textarea { min-height: 18px !important; max-height: 26px !important; font-size: 9px !important; }
+.composer-footer { padding-top: 3px !important; margin-top: 0 !important; }
+.send-button { padding: 4px 8px !important; font-size: 8px !important; }
+.environment#coreEnvironment { bottom: 132px !important; }
+.core-visual {
+  width: min(55vw, 650px) !important;
+  height: min(58vh, 500px) !important;
+  top: 47% !important;
+}
+.core-visual .orbit-a { width: min(40vw, 460px); height: min(17vw, 180px); }
+.core-visual .orbit-b { width: min(36vw, 430px); height: min(21vw, 230px); }
+.core-visual .orbit-c { width: min(44vw, 510px); height: min(27vw, 285px); }
+.mission-panel, .system-panel {
+  width: clamp(185px, 18vw, 230px) !important;
+  height: min(30vh, 235px) !important;
+  top: 21% !important;
+}
+.panel-heading { padding: 11px 12px 8px !important; }
+.panel-heading h2 { font-size: 10px !important; }
+.panel-kicker { font-size: 7px !important; }
+.status-list > div { padding: 6px 0 !important; font-size: 8px !important; }
+.status-list strong { font-size: 6px !important; }
+.empty-state { padding: 12px 9px 8px !important; }
+.empty-state p { font-size: 8px !important; line-height: 1.4; }
+.mission-toolbar { padding: 0 10px 6px !important; }
+.text-action { font-size: 8px !important; }
+.system-foot { padding-top: 5px !important; }
+
+/* Intelligence Lab: restrained three-column command HUD with a central reticle. */
+#labEnvironment {
+  top: 76px !important;
+  bottom: 132px !important;
+  background:
+    radial-gradient(ellipse at 50% 43%, rgba(0, 114, 190, .12), transparent 36%),
+    linear-gradient(rgba(0, 218, 255, .022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 218, 255, .022) 1px, transparent 1px);
+  background-size: auto, 32px 32px, 32px 32px;
+}
+#labEnvironment::before {
+  content: "INTELLIGENCE LAB  /  ANALYSIS FIELD";
+  position: absolute;
+  top: 8px; left: 50%;
+  transform: translateX(-50%);
+  color: rgba(106, 210, 237, .72);
+  font: 8px/1.2 "DM Mono", monospace;
+  letter-spacing: .18em;
+  white-space: nowrap;
+  z-index: 2;
+}
+#labEnvironment::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: 50%; top: 48%;
+  width: min(30vw, 330px); height: min(30vw, 330px);
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(32, 212, 255, .18);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(0, 187, 255, .09) 0 2%, transparent 2.5% 24%, rgba(0, 211, 255, .08) 24.3% 24.6%, transparent 25% 45%, rgba(0, 211, 255, .08) 45.3% 45.6%, transparent 46% 66%, rgba(0, 211, 255, .06) 66.3% 66.6%, transparent 67%),
+    conic-gradient(from 0deg, transparent 0 15%, rgba(0, 218, 255, .15) 15.2% 15.5%, transparent 15.7% 49%, rgba(0, 218, 255, .12) 49.2% 49.5%, transparent 49.7% 100%);
+  box-shadow: 0 0 45px rgba(0, 136, 255, .06), inset 0 0 35px rgba(0, 136, 255, .06);
+  pointer-events: none;
+}
+#labEnvironment .analysis-panel {
+  left: 2% !important; top: 8% !important; bottom: 4% !important;
+  width: 30% !important;
+  border-radius: 8px;
+  border: 1px solid rgba(55, 216, 255, .25);
+  background: linear-gradient(145deg, rgba(3, 24, 45, .92), rgba(0, 8, 20, .88));
+  box-shadow: 0 12px 32px rgba(0,0,0,.2), inset 0 1px rgba(120,240,255,.06);
+}
+#labEnvironment .insight-panel {
+  left: 34% !important; right: auto !important; top: 15% !important;
+  width: 32% !important; height: 65% !important;
+  border-radius: 9px;
+  border: 1px solid rgba(55, 216, 255, .28);
+  background: linear-gradient(145deg, rgba(3, 26, 48, .84), rgba(0, 8, 20, .84));
+  box-shadow: 0 14px 34px rgba(0,0,0,.18), inset 0 0 24px rgba(0,170,255,.035);
+  backdrop-filter: blur(9px);
+  z-index: 1;
+}
+#labEnvironment .boundary-panel {
+  right: 2% !important; top: 8% !important;
+  width: 30% !important; height: 42% !important;
+  border-radius: 8px;
+  border: 1px solid rgba(55, 216, 255, .25);
+  background: linear-gradient(145deg, rgba(3, 24, 45, .92), rgba(0, 8, 20, .88));
+  box-shadow: 0 12px 32px rgba(0,0,0,.2), inset 0 1px rgba(120,240,255,.06);
+}
+#labEnvironment .panel-heading { padding: 12px 13px 9px !important; }
+#labEnvironment .panel-heading h2 { font-size: 11px !important; }
+#labEnvironment .analysis-form { padding: 10px 12px !important; }
+#labEnvironment .analysis-form textarea { min-height: 76px; font-size: 10px; }
+#labEnvironment .analysis-options { gap: 7px; margin: 9px 0; }
+#labEnvironment .analysis-options label { font-size: 8px; }
+#labEnvironment .primary-button { padding: 8px 10px; font-size: 9px; }
+#labEnvironment .analysis-result { padding: 10px 12px; }
+#labEnvironment .result-placeholder p { font-size: 9px; }
+#labEnvironment .insight-map { padding: 14px 10px 0; }
+#labEnvironment .map-node { padding: 10px 5px; font-size: 8px; }
+#labEnvironment .map-node span { font-size: 8px; }
+#labEnvironment .map-branches { margin-top: 14px; height: 16px; }
+#labEnvironment .map-outcomes div { font-size: 7px; padding: 7px 3px; }
+#labEnvironment .map-caption { font-size: 7px; }
+#labEnvironment .trust-list { padding: 3px 12px; }
+#labEnvironment .trust-list li { font-size: 8px; padding: 8px 0; }
+
+/* Tight but usable layouts for phone and tablet widths. */
+@media (max-width: 1000px) {
+  .environment#coreEnvironment { bottom: 130px !important; }
+  .command-panel { width: min(570px, calc(100% - 28px)) !important; height: 108px !important; max-height: 108px !important; }
+  .mission-panel, .system-panel { width: clamp(155px, 21vw, 195px) !important; height: min(28vh, 205px) !important; }
+  #labEnvironment .analysis-panel { width: 31% !important; }
+  #labEnvironment .insight-panel { left: 34% !important; width: 32% !important; }
+  #labEnvironment .boundary-panel { width: 30% !important; }
+}
+@media (max-width: 760px) {
+  .environment#coreEnvironment { bottom: 122px !important; }
+  .command-panel { width: calc(100% - 16px) !important; height: 105px !important; max-height: 105px !important; }
+  .core-visual { width: min(90vw, 380px) !important; height: min(42vh, 290px) !important; top: 60% !important; }
+  .mission-panel, .system-panel { height: 25% !important; top: 3% !important; }
+  #labEnvironment { bottom: 122px !important; }
+  #labEnvironment::after { width: 42vw; height: 42vw; top: 50%; }
+  #labEnvironment .analysis-panel { left: 1% !important; top: 7% !important; bottom: 4% !important; width: 32% !important; }
+  #labEnvironment .insight-panel { left: 35% !important; top: 17% !important; width: 30% !important; height: 61% !important; }
+  #labEnvironment .boundary-panel { right: 1% !important; top: 7% !important; width: 32% !important; height: 42% !important; }
+  #labEnvironment .panel-heading { padding: 8px 7px 6px !important; }
+  #labEnvironment .panel-heading h2 { font-size: 9px !important; }
+  #labEnvironment .panel-kicker { font-size: 6px !important; }
+  #labEnvironment .analysis-form { padding: 7px !important; }
+  #labEnvironment .analysis-form textarea { min-height: 48px; font-size: 8px; }
+  #labEnvironment .analysis-options { gap: 4px; }
+  #labEnvironment .analysis-options label, #labEnvironment .trust-list li { font-size: 6px; }
+  #labEnvironment .map-node { font-size: 6px; padding: 6px 2px; }
+  #labEnvironment .map-node span { font-size: 6px; }
+  #labEnvironment .map-outcomes div { font-size: 5px; }
+  #labEnvironment .map-caption { font-size: 5px; }
+}
+@media (max-width: 420px) {
+  #labEnvironment .analysis-panel { width: 31% !important; }
+  #labEnvironment .insight-panel { left: 33% !important; width: 34% !important; }
+  #labEnvironment .boundary-panel { width: 31% !important; }
+  #labEnvironment .panel-heading h2 { font-size: 8px !important; }
+  #labEnvironment .analysis-options label { font-size: 5px; }
+  #labEnvironment .trust-list li { font-size: 5px; }
+}
