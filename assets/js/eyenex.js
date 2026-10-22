@@ -5,7 +5,7 @@
   const toast = $('#toast');
   let toastTimer;
   const STORAGE_KEY = 'eyenex-neural-missions-v1';
-  const states = ['READY', 'IN PROGRESS', 'DONE'];
+  const states = ['READY', 'IN PROGRESS', 'DONE', 'FAILED'];
 
   function notify(message) {
     toast.textContent = message;
@@ -209,7 +209,13 @@
       id: String(item.id || Date.now() + Math.random()),
       title: item.title.slice(0, 180),
       detail: typeof item.detail === 'string' ? item.detail.slice(0, 180) : 'LOCAL PLAN',
-      state: states.includes(item.state) ? item.state : 'READY'
+      state: states.includes(item.state) ? item.state : 'READY',
+      createdAt: typeof item.createdAt === 'string' ? item.createdAt : new Date().toISOString(),
+      updatedAt: typeof item.updatedAt === 'string' ? item.updatedAt : (item.createdAt || new Date().toISOString()),
+      startedAt: typeof item.startedAt === 'string' ? item.startedAt : '',
+      completedAt: typeof item.completedAt === 'string' ? item.completedAt : '',
+      failedAt: typeof item.failedAt === 'string' ? item.failedAt : '',
+      error: typeof item.error === 'string' ? item.error.slice(0, 240) : ''
     }));
   } catch (error) {
     missions = [];
@@ -234,10 +240,12 @@
     missionList.className = 'mission-items';
     missionList.innerHTML = missions.map((item, index) => {
       const done = item.state === 'DONE';
-      return '<div class="mission-item ' + (done ? 'is-done' : '') + '">' +
+      const statusIcon = done ? '✓' : item.state === 'FAILED' ? '!' : item.state === 'IN PROGRESS' ? '◒' : '○';
+      const timestamp = item.updatedAt ? new Date(item.updatedAt).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit' }) : '';
+      return '<div class="mission-item ' + (done ? 'is-done' : item.state === 'FAILED' ? 'is-failed' : '') + '">' +
         '<span class="mission-number">' + String(index + 1).padStart(2, '0') + '</span>' +
-        '<div><button class="mission-title-button" type="button" data-mission-toggle="' + escapeHTML(item.id) + '" aria-label="Change status for ' + escapeHTML(item.title) + '"><strong>' + escapeHTML(item.title) + '</strong></button><small>' + escapeHTML(item.detail) + ' · ' + escapeHTML(item.state) + '</small></div>' +
-        '<button class="mission-state" type="button" data-mission-toggle="' + escapeHTML(item.id) + '" aria-label="Advance task status" title="Advance status">' + (done ? '✓' : item.state === 'IN PROGRESS' ? '◒' : '○') + '</button>' +
+        '<div><button class="mission-title-button" type="button" data-mission-toggle="' + escapeHTML(item.id) + '" aria-label="Change status for ' + escapeHTML(item.title) + '"><strong>' + escapeHTML(item.title) + '</strong></button><small>' + escapeHTML(item.detail) + ' · ' + escapeHTML(item.state) + (timestamp ? ' · ' + escapeHTML(timestamp) : '') + (item.error ? '<br>ERROR: ' + escapeHTML(item.error) : '') + '</small></div>' +
+        '<button class="mission-state" type="button" data-mission-toggle="' + escapeHTML(item.id) + '" aria-label="Advance task status" title="Advance status">' + statusIcon + '</button>'+
         '<button class="mission-remove" type="button" data-mission-remove="' + escapeHTML(item.id) + '" aria-label="Remove task" title="Remove task">×</button>' +
       '</div>';
     }).join('');
@@ -248,7 +256,9 @@
       id: String(Date.now()) + '-' + Math.random().toString(36).slice(2, 8) + '-' + index,
       title: item.title,
       detail: item.detail || 'LOCAL PLAN',
-      state: 'READY'
+      state: 'READY',
+      createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+      startedAt: '', completedAt: '', failedAt: '', error: ''
     }));
     missions = missions.concat(additions);
     saveMissions();
@@ -258,9 +268,22 @@
   function advanceMission(id) {
     const item = missions.find(mission => mission.id === id);
     if (!item) return;
-    item.state = states[(states.indexOf(item.state) + 1) % states.length];
-    saveMissions();
-    renderMissions();
+    const previous = item.state, stamp = new Date().toISOString();
+    if (previous === 'READY') {
+      let approved = false;
+      try { const opsState = JSON.parse(localStorage.getItem('eyenex-neural-mission-ops-v1') || '{}'); approved = opsState.approvals && opsState.approvals[id] === true; } catch (_) {}
+      if (!approved) { notify('Approval required: review this checkpoint in Mission Control before starting the task.'); return; }
+      item.state = 'IN PROGRESS'; item.startedAt = stamp; item.completedAt = ''; item.failedAt = ''; item.error = '';
+    } else if (previous === 'IN PROGRESS') {
+      item.state = 'DONE'; item.completedAt = stamp; item.error = '';
+    } else {
+      item.state = 'READY'; item.startedAt = ''; item.completedAt = ''; item.failedAt = ''; item.error = '';
+    }
+    item.updatedAt = stamp; saveMissions(); renderMissions();
+    if (item.state === 'IN PROGRESS') notify('Task started after local approval.');
+    else if (item.state === 'DONE') notify('Task marked complete.');
+    else if (previous === 'FAILED') notify('Task reset for recovery; approve before restarting.');
+    else if (previous === 'DONE') notify('Completed task returned to the ready queue.');
   }
   missionList.addEventListener('click', event => {
     const toggle = event.target.closest('[data-mission-toggle]');
