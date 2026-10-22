@@ -396,7 +396,10 @@
       return;
     }
     try {
-      if (typedKey) localStorage.setItem(API_KEY_KEY, typedKey);
+      if (typedKey) {
+        localStorage.setItem(API_KEY_KEY, typedKey);
+        keyVerifiedThisSession = false;
+      }
       if (!typedKey && !getSavedKey()) {
         setSettingsFeedback('Enter an API key before saving. The model ID can be changed at any time.', 'error');
         return;
@@ -413,6 +416,8 @@
     }
   });
   $('#testApiKey').addEventListener('click', async () => {
+    keyVerifiedThisSession = false;
+    refreshKeyState();
     const key = getActiveKey();
     if (!key) {
       setSettingsFeedback('Enter an API key or save one locally first.', 'error');
