@@ -43,6 +43,9 @@
     .hud-command-panel .composer-footer{padding-top:5px!important}
     .hud-command-panel .send-button{font-size:8px!important;padding:6px 8px!important}
 
+    /* Mission orchestration belongs to Neural Core; keep the Intelligence Lab workspace clear. */
+    body[data-environment="lab"] .hud-orchestration-panel{display:none!important;}
+
     .hud-orchestration-panel{
       position:absolute!important;z-index:10;left:auto!important;right:16px!important;top:auto!important;bottom:184px!important;
       width:clamp(210px,21vw,270px)!important;height:clamp(154px,21vh,178px)!important;max-height:178px!important;min-height:0!important;
