@@ -34,6 +34,8 @@ jobs:
           test -f assets/css/eyenex.css
           test -f assets/css/panel-scroll.css
           test -f assets/css/settings.css
+          test -f assets/css/fixed-frame.css
+          test -f assets/css/hud-layout.css
           test -f assets/js/eyenex.js
           echo "EYENEX NEURAL static files are present."
 
