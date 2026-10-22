@@ -29,6 +29,144 @@
     document.body.dataset.environment = isCore ? 'core' : 'lab';
   }
   document.body.dataset.environment = 'core';
+  
+  // Interactive 3D neural core: WebGL ray-sphere shading, animated energy filaments,
+  // responsive rendering, and pointer/touch rotation. Falls back to the CSS orb if WebGL is unavailable.
+  function initInteractiveNeuralCore() {
+    const canvas = $('#neuralCoreCanvas');
+    if (!canvas) return;
+    let gl;
+    try { gl = canvas.getContext('webgl', { alpha: true, antialias: true, powerPreference: 'high-performance' }); }
+    catch (_) { gl = null; }
+    if (!gl) {
+      canvas.style.display = 'none';
+      const visual = canvas.closest('.core-visual');
+      if (visual) visual.classList.add('core-fallback');
+      return;
+    }
+
+    const vertexSource = `
+      attribute vec2 a_position;
+      varying vec2 v_uv;
+      void main() { v_uv = a_position * 0.5 + 0.5; gl_Position = vec4(a_position, 0.0, 1.0); }
+    `;
+    const fragmentSource = `
+      precision highp float;
+      varying vec2 v_uv;
+      uniform vec2 u_resolution;
+      uniform float u_time;
+      uniform vec2 u_rotation;
+      uniform float u_hover;
+      float hash(vec3 p) {
+        p = fract(p * 0.3183099 + vec3(.1,.2,.3));
+        p *= 17.0;
+        return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
+      }
+      float noise(vec3 p) {
+        vec3 i = floor(p), f = fract(p);
+        f = f*f*(3.0-2.0*f);
+        return mix(mix(mix(hash(i),hash(i+vec3(1,0,0)),f.x),
+                       mix(hash(i+vec3(0,1,0)),hash(i+vec3(1,1,0)),f.x),f.y),
+                   mix(mix(hash(i+vec3(0,0,1)),hash(i+vec3(1,0,1)),f.x),
+                       mix(hash(i+vec3(0,1,1)),hash(i+vec3(1,1,1)),f.x),f.y),f.z);
+      }
+      float fbm(vec3 p) {
+        float v=0.0, a=.52;
+        for(int i=0;i<5;i++){ v+=a*noise(p); p=p*2.03+vec3(7.1,3.4,5.2); a*=.5; }
+        return v;
+      }
+      mat3 rotX(float a) { float c=cos(a),s=sin(a); return mat3(1.,0.,0.,0.,c,s,0.,-s,c); }
+      mat3 rotY(float a) { float c=cos(a),s=sin(a); return mat3(c,0.,-s,0.,1.,0.,s,0.,c); }
+      void main() {
+        vec2 uv=(v_uv-.5)*2.0;
+        uv.x *= u_resolution.x/u_resolution.y;
+        vec3 ro=vec3(0.0,0.0,2.75);
+        vec3 rd=normalize(vec3(uv*1.12,-1.9));
+        float b=dot(ro,rd), c=dot(ro,ro)-.69*.69;
+        float disc=b*b-c;
+        vec3 color=vec3(0.0);
+        float alpha=0.0;
+        float radial=length(uv*vec2(.82,1.0));
+        float aura=exp(-max(0.0,radial-.25)*5.0)*.16;
+        color += vec3(.0,.32,.55)*aura;
+        alpha=max(alpha,aura*.75);
+        if(disc>0.0) {
+          float t=-b-sqrt(disc);
+          vec3 p=ro+t*rd;
+          vec3 n=normalize(p);
+          vec3 q=rotY(u_rotation.x + u_time*.12)*rotX(u_rotation.y + sin(u_time*.17)*.08)*n;
+          float clouds=fbm(q*5.7+vec3(u_time*.035,0.0,u_time*.025));
+          float fine=fbm(q*15.0+vec3(0.0,u_time*.06,0.0));
+          float latitude=abs(sin(acos(clamp(q.y,-1.0,1.0))*31.0));
+          float longitude=abs(sin(atan(q.z,q.x)*27.0 + sin(q.y*8.0)*.8));
+          float grid=1.0-smoothstep(.0,.095,min(latitude,longitude));
+          float filaments=pow(max(0.0,sin((q.x*13.0+q.y*19.0+q.z*11.0)+fbm(q*8.0)*5.0+u_time*.8)),18.0);
+          float bands=pow(max(0.0,sin(q.y*24.0 + clouds*5.0 + u_time*.22)),9.0);
+          vec3 base=mix(vec3(.008,.035,.095),vec3(.015,.31,.49),smoothstep(.25,.78,clouds));
+          base=mix(base,vec3(.015,.68,.77),smoothstep(.53,.82,fine)*.72);
+          base += vec3(.01,.23,.32)*grid*.65;
+          base += vec3(.05,.66,1.0)*filaments*.95;
+          base += vec3(.01,.32,.55)*bands*.36;
+          vec3 lightDir=normalize(vec3(-.65,.75,1.25));
+          float diffuse=max(dot(n,lightDir),0.0);
+          float spec=pow(max(dot(reflect(-lightDir,n),normalize(-rd)),0.0),34.0);
+          float rim=pow(1.0-max(dot(n,normalize(-rd)),0.0),2.8);
+          color=base*(.3+diffuse*.9)+vec3(.42,.92,1.0)*spec*.9+vec3(.0,.58,1.0)*rim*.9;
+          color += vec3(.12,.85,1.0)*grid*(.18+u_hover*.5);
+          color += vec3(.04,.55,1.0)*filaments*(.2+u_hover*.5);
+          float edge=smoothstep(.69,.665,length(p));
+          alpha=max(alpha,edge);
+          color=mix(color,vec3(.03,.75,1.0),rim*.24);
+        }
+        gl_FragColor=vec4(color,clamp(alpha,0.0,1.0));
+      }
+    `;
+    function compile(type, source) {
+      const shader=gl.createShader(type); gl.shaderSource(shader,source); gl.compileShader(shader);
+      if(!gl.getShaderParameter(shader,gl.COMPILE_STATUS)){ gl.deleteShader(shader); return null; }
+      return shader;
+    }
+    const vs=compile(gl.VERTEX_SHADER,vertexSource), fs=compile(gl.FRAGMENT_SHADER,fragmentSource);
+    if(!vs || !fs) {
+      canvas.style.display='none';
+      const visual=canvas.closest('.core-visual'); if(visual) visual.classList.add('core-fallback');
+      return;
+    }
+    const program=gl.createProgram(); gl.attachShader(program,vs); gl.attachShader(program,fs); gl.linkProgram(program);
+    if(!gl.getProgramParameter(program,gl.LINK_STATUS)){ canvas.style.display='none'; return; }
+    gl.useProgram(program);
+    const buffer=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
+    gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
+    const pos=gl.getAttribLocation(program,'a_position'); gl.enableVertexAttribArray(pos); gl.vertexAttribPointer(pos,2,gl.FLOAT,false,0,0);
+    const resLoc=gl.getUniformLocation(program,'u_resolution'), timeLoc=gl.getUniformLocation(program,'u_time');
+    const rotLoc=gl.getUniformLocation(program,'u_rotation'), hoverLoc=gl.getUniformLocation(program,'u_hover');
+    let rotXValue=.25, rotYValue=.15, hover=0, dragging=false, lastX=0, lastY=0, lastTime=0;
+    canvas.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture?.(e.pointerId);});
+    canvas.addEventListener('pointermove',e=>{
+      if(dragging){rotXValue+=(e.clientX-lastX)*.008;rotYValue=Math.max(-1.35,Math.min(1.35,rotYValue+(e.clientY-lastY)*.008));lastX=e.clientX;lastY=e.clientY;}
+      else {const r=canvas.getBoundingClientRect();hover=Math.max(0,1-Math.hypot((e.clientX-r.left)/r.width-.5,(e.clientY-r.top)/r.height-.5)*1.8);}
+    });
+    const stopDrag=()=>{dragging=false;}; canvas.addEventListener('pointerup',stopDrag); canvas.addEventListener('pointercancel',stopDrag); canvas.addEventListener('pointerleave',()=>{if(!dragging)hover=0;});
+    canvas.addEventListener('keydown',e=>{if(e.key==='ArrowLeft')rotXValue-=.15;if(e.key==='ArrowRight')rotXValue+=.15;if(e.key==='ArrowUp')rotYValue-=.15;if(e.key==='ArrowDown')rotYValue+=.15;});
+    canvas.tabIndex=0;
+    function resize(){
+      const rect=canvas.getBoundingClientRect(), dpr=Math.min(window.devicePixelRatio||1,2);
+      const w=Math.max(1,Math.round(rect.width*dpr)), h=Math.max(1,Math.round(rect.height*dpr));
+      if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h);}
+    }
+    function draw(now){
+      resize(); const t=now*.001;
+      if(!dragging) rotXValue+=.0007;
+      gl.clearColor(0,0,0,0); gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.uniform2f(resLoc,canvas.width,canvas.height); gl.uniform1f(timeLoc,t);
+      gl.uniform2f(rotLoc,rotXValue,rotYValue); gl.uniform1f(hoverLoc,hover);
+      gl.drawArrays(gl.TRIANGLES,0,6);
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+  }
+  initInteractiveNeuralCore();
+
 
   const conversation = $('#conversation');
   const commandInput = $('#commandInput');
