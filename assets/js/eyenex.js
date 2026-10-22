@@ -166,6 +166,7 @@
   const defaultModel = 'openrouter/auto';
   let aiHistory = [];
   let aiBusy = false;
+  let keyVerifiedThisSession = false;
 
   function getSavedKey() {
     try { return localStorage.getItem(API_KEY_KEY) || ''; } catch (error) { return ''; }
@@ -221,6 +222,16 @@
     state.classList.toggle('is-saved', saved);
     state.innerHTML = '<i></i><span>' + (saved ? 'API key saved in this browser' : 'No API key saved in this browser') + '</span>';
     $('#removeSavedKey').disabled = !saved;
+    const status = $('#aiStatus');
+    if (status) {
+      status.textContent = keyVerifiedThisSession ? 'CONNECTED' : saved ? 'CONFIGURED' : 'NOT CONNECTED';
+      status.classList.toggle('status-good', keyVerifiedThisSession || saved);
+      status.classList.toggle('status-wait', !keyVerifiedThisSession && !saved);
+    }
+    const mode = $('#aiModeLabel');
+    const hint = $('#aiModeHint');
+    if (mode) mode.textContent = saved || $('#openRouterKey').value.trim() ? 'OPENROUTER AI' : 'LOCAL PLANNER';
+    if (hint) hint.textContent = saved || $('#openRouterKey').value.trim() ? '· key configured in this browser' : '· live AI not connected';
   }
   function loadSettingsIntoForm() {
     $('#openRouterKey').value = '';
@@ -422,6 +433,8 @@
       }
       const info = data && data.data ? data.data : {};
       const remaining = typeof info.limit_remaining === 'number' ? ' Remaining key limit: $' + info.limit_remaining.toFixed(2) + '.' : '';
+      keyVerifiedThisSession = true;
+      refreshKeyState();
       setSettingsFeedback('API key accepted by OpenRouter.' + remaining + ' No chat completion was generated.', 'success');
       notify('OpenRouter API key test passed.');
     } catch (error) {
@@ -437,6 +450,7 @@
       localStorage.removeItem(MODEL_KEY);
       localStorage.removeItem(SETTINGS_KEY);
       aiHistory = [];
+      keyVerifiedThisSession = false;
       loadSettingsIntoForm();
       setSettingsFeedback('Saved API key removed from this browser. Any key typed above was not saved.', 'success');
       notify('Saved OpenRouter key removed.');
