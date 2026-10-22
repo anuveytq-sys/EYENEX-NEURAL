@@ -1,1 +1,23 @@
-/* The tracking pointer is styled by settings.css so it can share the HUD palette. */
+/* Optional camera controls — isolated from the core HUD layout. */
+.camera-control-card{margin-top:24px;padding:16px;border:1px solid rgba(112,232,242,.2);border-radius:11px;background:linear-gradient(135deg,rgba(112,232,242,.045),rgba(120,168,255,.025))}
+.camera-control-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.camera-status{font:8px var(--mono);letter-spacing:.08em;color:#8fa5b8;border:1px solid var(--line);border-radius:20px;padding:5px 8px}
+.camera-status.is-active{color:var(--mint);border-color:rgba(161,244,208,.35)}
+.camera-control-card h3{margin:12px 0 7px;font-size:14px;letter-spacing:-.02em;color:var(--text)}
+.camera-control-copy,.camera-feedback,.camera-privacy-note{font:10px/1.7 var(--font);color:#8da2b5}
+.camera-control-copy{margin:0 0 13px}
+.camera-preview-wrap{position:relative;overflow:hidden;aspect-ratio:16/9;max-height:190px;border:1px solid rgba(140,175,205,.2);border-radius:8px;background:#050a12}
+#cameraPreview{display:block;width:100%;height:100%;object-fit:cover;transform:scaleX(-1);opacity:0}
+#cameraPreview.is-visible{opacity:1}
+.camera-preview-overlay{position:absolute;inset:0;display:grid;place-items:center;color:#61788e;font:9px var(--mono);letter-spacing:.12em;background:linear-gradient(145deg,rgba(8,15,26,.7),rgba(4,9,16,.92));pointer-events:none}
+.camera-preview-overlay.is-hidden{display:none}
+.camera-control-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.camera-control-actions .settings-action{min-height:35px;padding:8px 10px;font-size:10px}
+.camera-control-actions .settings-action:disabled{opacity:.38;cursor:not-allowed}
+.camera-feedback{min-height:18px;margin:10px 0 4px;color:#b3c6d5}
+.camera-privacy-note{margin:8px 0 0;font-size:9px;color:#71879b}
+.eyenex-camera-pointer{position:fixed;z-index:10000;width:18px;height:18px;border:2px solid var(--cyan);border-radius:50%;box-shadow:0 0 0 5px rgba(112,232,242,.1),0 0 18px rgba(112,232,242,.65);pointer-events:none;transform:translate(-50%,-50%);display:none}
+.eyenex-camera-pointer.is-active{display:block}
+.eyenex-camera-pointer::after{content:"";position:absolute;inset:5px;border-radius:50%;background:var(--cyan)}
+.eyenex-camera-pointer.is-confirming{border-color:var(--mint);box-shadow:0 0 0 8px rgba(161,244,208,.16),0 0 22px rgba(161,244,208,.8)}
+@media(max-width:760px){.camera-control-card{padding:13px}.camera-control-actions .settings-action{flex:1 1 auto}}
