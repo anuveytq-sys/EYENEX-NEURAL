@@ -1,0 +1,37 @@
+/* Scrollable OpenRouter settings drawer */
+.settings-trigger{display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--line-strong);border-radius:8px;background:rgba(112,232,242,.06);color:var(--cyan);font:9px var(--mono);letter-spacing:.08em;cursor:pointer;white-space:nowrap;transition:background .2s,border-color .2s}
+.settings-trigger:hover{background:rgba(112,232,242,.13);border-color:rgba(112,232,242,.55)}
+.settings-trigger .gear{font-size:15px;line-height:1}
+.settings-dialog{width:min(560px,calc(100vw - 24px));max-width:none;max-height:min(84vh,760px);padding:0;border:1px solid rgba(112,232,242,.25);border-radius:16px;color:var(--text);background:linear-gradient(145deg,#101b2b 0%,#09111e 100%);box-shadow:0 28px 100px rgba(0,0,0,.65);overflow:hidden}
+.settings-dialog::backdrop{background:rgba(2,6,12,.72);backdrop-filter:blur(8px)}
+.settings-layout{max-height:min(84vh,760px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(112,232,242,.35) rgba(255,255,255,.03)}
+.settings-head{position:sticky;top:0;z-index:3;display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding:22px 24px 18px;border-bottom:1px solid var(--line);background:rgba(10,18,30,.96);backdrop-filter:blur(16px)}
+.settings-head h2{font-size:20px;letter-spacing:-.04em;margin:7px 0 0}
+.settings-head h2 em{font-style:normal;color:var(--cyan)}
+.settings-close{width:34px;height:34px;flex:0 0 34px;display:grid;place-items:center;border:1px solid var(--line);border-radius:9px;background:rgba(255,255,255,.025);color:#a9bdce;font-size:23px;line-height:1;cursor:pointer}
+.settings-close:hover{border-color:rgba(255,130,130,.5);color:#ffd0d0}
+.settings-body{padding:22px 24px 24px}
+.settings-intro{font-size:11px;line-height:1.75;color:#91a5b8;margin:0 0 20px}
+.settings-field{display:block;margin:17px 0}
+.settings-field>span,.settings-label{display:block;font:9px var(--mono);letter-spacing:.1em;color:#9bb0c1;margin-bottom:8px}
+.settings-field input,.settings-field select{display:block;width:100%;min-width:0;border:1px solid rgba(140,175,205,.23);border-radius:8px;background:#080f1a;color:var(--text);padding:12px 13px;font:12px var(--mono);outline:none}
+.settings-field input:focus,.settings-field select:focus{border-color:rgba(112,232,242,.65);box-shadow:0 0 0 3px rgba(112,232,242,.07)}
+.settings-field input::placeholder{color:#53687b}
+.settings-field small{display:block;font:10px/1.6 var(--font);color:#6f8599;margin-top:7px}
+.settings-actions{display:flex;flex-wrap:wrap;gap:9px;margin:20px 0 12px}
+.settings-action{min-height:39px;border:1px solid var(--line-strong);border-radius:8px;padding:10px 13px;background:rgba(112,232,242,.07);color:var(--cyan);font:9px var(--mono);letter-spacing:.04em;cursor:pointer}
+.settings-action.primary{background:linear-gradient(110deg,rgba(112,232,242,.18),rgba(120,168,255,.12));border-color:rgba(112,232,242,.48)}
+.settings-action.secondary{color:#b0c0ce;border-color:var(--line);background:rgba(255,255,255,.025)}
+.settings-action.danger{color:#ffb4b4;border-color:rgba(255,130,130,.28);background:rgba(255,130,130,.045)}
+.settings-action:disabled{opacity:.5;cursor:wait}
+.settings-feedback{min-height:20px;font-size:10px;line-height:1.6;color:#9db1c2;margin:8px 0 14px;overflow-wrap:anywhere}
+.settings-feedback[data-kind="success"]{color:var(--mint)}
+.settings-feedback[data-kind="error"]{color:#ffaaaa}
+.settings-warning{display:flex;gap:11px;padding:13px;border:1px solid rgba(255,190,110,.2);border-radius:9px;background:rgba(255,190,110,.045);font-size:10px;line-height:1.7;color:#c6b9a6}
+.settings-warning strong{display:block;color:#f0c88e;margin-bottom:3px}
+.settings-divider{height:1px;background:var(--line);margin:22px 0}
+.settings-key-state{display:flex;align-items:center;gap:8px;font:9px var(--mono);color:#8299ad;margin:0 0 16px}
+.settings-key-state i{width:6px;height:6px;border-radius:50%;background:#667b8e}
+.settings-key-state.is-saved i{background:var(--mint);box-shadow:0 0 9px rgba(161,244,208,.45)}
+@media(max-width:760px){.settings-trigger{padding:8px 9px}.settings-trigger .settings-word{display:none}.settings-head{padding:18px 17px 15px}.settings-body{padding:18px 17px 20px}.settings-dialog,.settings-layout{max-height:88vh}}
+@media(prefers-reduced-motion:reduce){.settings-trigger{transition:none}}
