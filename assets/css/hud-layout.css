@@ -643,3 +643,43 @@ body[data-environment="lab"] .core-visual { display: none; }
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
+
+
+/* Neural Core panel scroll fix: the heading is part of the scrolling flow. */
+#coreEnvironment .mission-panel,
+#coreEnvironment .system-panel {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+#coreEnvironment .mission-panel > .panel-heading,
+#coreEnvironment .system-panel > .panel-heading {
+  position: relative !important;
+  inset: auto !important;
+  flex: 0 0 auto !important;
+  align-self: stretch;
+  transform: none !important;
+  margin-top: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  pointer-events: auto;
+}
+#coreEnvironment .mission-panel > *,
+#coreEnvironment .system-panel > * {
+  position: relative;
+}
+#coreEnvironment .mission-panel > .panel-heading,
+#coreEnvironment .system-panel > .panel-heading {
+  z-index: 1 !important;
+}
+#neuralCoreCanvas {
+  touch-action: none;
+  cursor: grab;
+}
+#neuralCoreCanvas:active { cursor: grabbing; }
+#neuralCoreCanvas:focus-visible {
+  outline: 1px solid rgba(0, 234, 255, .7);
+  outline-offset: 3px;
+}
