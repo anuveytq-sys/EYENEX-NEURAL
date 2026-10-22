@@ -39,20 +39,34 @@
   }
   function safeConfirmAtPointer() {
     const now = performance.now();
-    if (now - lastConfirmAt < 1300) return;
+    if (now - lastConfirmAt < 850) return;
     lastConfirmAt = now;
-    const target = document.elementFromPoint(pointerX, pointerY);
-    if (!target) { say('Blink detected, but no confirmable control is under the pointer.'); return; }
-    const button = target.closest('button:not(:disabled)');
-    const label = button ? [button.textContent, button.title, button.getAttribute('aria-label') || ''].join(' ') : '';
-    const destructive = /\b(delete|remove|clear|reset|stop camera|erase)\b/i.test(label);
-    if (!button || button.type === 'submit' || destructive || button.matches('.danger,#removeSavedKey,.settings-close,#closeSettings,#closeDialog') ||
-        button.closest('.camera-control-card') || button.getAttribute('aria-hidden') === 'true' || button.matches('#cameraMode,#cameraCalibrate,#cameraPause,#cameraBlink,#cameraStart,#cameraStop')) {
-      say('Blink registered. Move the pointer onto a safe, non-destructive button to confirm.');
+    // Resolve the real element at the pointer position. The visual pointer itself
+    // has pointer-events:none, so it should never mask the underlying control.
+    const hit = document.elementFromPoint(pointerX, pointerY);
+    if (!hit) { say('Gesture detected, but no control is under the pointer.'); return; }
+    const control = hit.closest('button, a[href], [role="button"], input[type="button"], input[type="checkbox"], input[type="radio"], label, summary');
+    if (!control || control.matches(':disabled,[aria-disabled="true"]')) {
+      say('Gesture detected. Move the pointer directly over a button or interactive control.');
       return;
     }
-    say('Deliberate blink detected — confirming: ' + (button.textContent.trim().replace(/\s+/g, ' ').slice(0, 60) || 'button'));
-    button.click();
+    const label = [control.textContent || '', control.getAttribute('aria-label') || '', control.getAttribute('title') || '', control.id || ''].join(' ').trim();
+    const destructive = /\\b(delete|erase|wipe|factory reset)\\b/i.test(label);
+    // Never submit forms or activate clearly destructive controls accidentally.
+    // Settings close and ordinary camera controls are intentionally allowed.
+    if (control.matches('button[type="submit"],input[type="submit"],.danger,#removeSavedKey') || destructive) {
+      say('Gesture detected, but this control requires a deliberate touch/click.');
+      return;
+    }
+    try {
+      control.focus({ preventScroll: true });
+      control.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true, pointerType: 'mouse', isPrimary: true, clientX: pointerX, clientY: pointerY, button: 0, buttons: 1 }));
+      control.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, cancelable: true, pointerType: 'mouse', isPrimary: true, clientX: pointerX, clientY: pointerY, button: 0, buttons: 0 }));
+      control.click();
+      say('Gesture click activated: ' + (label.replace(/\\s+/g, ' ').slice(0, 55) || control.tagName.toLowerCase()));
+    } catch (error) {
+      say('Gesture found the control but could not activate it. Try a direct touch/click.');
+    }
   }
   function getBlendshape(categories, name) {
     const entry = categories && categories.find(item => item.categoryName === name);
