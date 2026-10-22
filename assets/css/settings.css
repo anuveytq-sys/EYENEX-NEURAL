@@ -35,3 +35,5 @@
 .settings-key-state.is-saved i{background:var(--mint);box-shadow:0 0 9px rgba(161,244,208,.45)}
 @media(max-width:760px){.settings-trigger{padding:8px 9px}.settings-trigger .settings-word{display:none}.settings-head{padding:18px 17px 15px}.settings-body{padding:18px 17px 20px}.settings-dialog,.settings-layout{max-height:88vh}}
 @media(prefers-reduced-motion:reduce){.settings-trigger{transition:none}}
+
+.ai-analysis-answer{white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;line-height:1.85;color:#b8c8d6}
