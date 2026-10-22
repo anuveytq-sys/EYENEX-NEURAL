@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="./assets/css/settings.css" />
   <link rel="stylesheet" href="./assets/css/fixed-frame.css" />
   <link rel="stylesheet" href="./assets/css/hud-layout.css" />
+  <link rel="stylesheet" href="./assets/css/multimodal.css" />
 </head>
 <body>
   <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
@@ -71,11 +72,27 @@
       <div class="settings-body"><p class="settings-intro">Connect your own OpenRouter account to enable live AI answers in Neural Core and AI-assisted analysis in Intelligence Lab.</p><div class="settings-key-state" id="keyState"><i></i><span>No API key saved in this browser</span></div>
         <form id="settingsForm"><label class="settings-field" for="openRouterKey"><span>OPENROUTER API KEY</span><input id="openRouterKey" name="openRouterKey" type="password" placeholder="sk-or-v1-…" autocomplete="off" spellcheck="false" aria-describedby="keyHelp" /><small id="keyHelp">Paste your own key. It will not be added to the GitHub repository.</small></label><label class="settings-field" for="openRouterModel"><span>MODEL ID</span><input id="openRouterModel" name="openRouterModel" type="text" value="openrouter/auto" placeholder="provider/model-name" autocomplete="off" spellcheck="false" /><small>Enter a model ID supported by OpenRouter. Model pricing and availability vary.</small></label><div class="settings-actions"><button class="settings-action" id="testApiKey" type="button">Test API key</button><button class="settings-action primary" id="saveSettings" type="submit">Save locally</button><button class="settings-action secondary" id="toggleKeyVisibility" type="button">Show key</button></div><p class="settings-feedback" id="settingsFeedback" role="status" aria-live="polite"></p></form>
         <div class="settings-divider"></div><div class="settings-actions"><button class="settings-action danger" id="removeSavedKey" type="button">Remove saved key</button></div><div class="settings-warning"><span aria-hidden="true">⚠</span><div><strong>Browser-storage safety</strong>Your key is saved in this browser’s local storage, not encrypted and not synced. Page scripts can access it. Use only on a device/profile you control, never paste the key into chat or commit it to GitHub, and set a spending limit on your OpenRouter key. API requests may incur charges depending on the model.</div></div>
+        <section class="camera-control-card" aria-labelledby="cameraControlTitle">
+          <div class="camera-control-heading"><span class="panel-kicker">MULTIMODAL CONTROLS / 01</span><span class="camera-status" id="cameraStatus" role="status">CAMERA OFF</span></div>
+          <h3 id="cameraControlTitle">Head-pointer control</h3>
+          <p class="camera-control-copy">Optional camera-based pointer control with center calibration, smoothing, pause, and deliberate blink confirmation. Camera access starts only when you press Start.</p>
+          <div class="camera-preview-wrap"><video id="cameraPreview" muted playsinline aria-label="Mirrored camera preview"></video><div class="camera-preview-overlay" id="cameraPreviewOverlay">PREVIEW OFF</div></div>
+          <div class="camera-control-actions">
+            <button class="settings-action primary" id="cameraStart" type="button">Start tracking</button>
+            <button class="settings-action" id="cameraCalibrate" type="button" disabled>Calibrate center</button>
+            <button class="settings-action" id="cameraPause" type="button" disabled>Pause tracking</button>
+            <button class="settings-action secondary" id="cameraBlink" type="button" disabled>Blink confirm: OFF</button>
+            <button class="settings-action danger" id="cameraStop" type="button" disabled>Stop camera</button>
+          </div>
+          <p class="camera-feedback" id="cameraFeedback" role="status" aria-live="polite">Camera is off. No camera access is requested until you start it.</p>
+          <p class="camera-privacy-note">Privacy: video frames are processed in this browser and are not uploaded or saved by this feature. The tracking library and model are downloaded from their published CDN when you start. Camera control requires a secure HTTPS page and browser permission.</p>
+        </section>
       </div>
     </div>
   </dialog>
-  <dialog id="aboutDialog" class="about-dialog"><button class="dialog-close" id="closeDialog" aria-label="Close">×</button><span class="panel-kicker">ABOUT THE SYSTEM</span><h2>EYENEX <em>NEURAL</em></h2><p>A modular AI command center prototype with two focused environments: Neural Core for commands and workflow planning, and Intelligence Lab for structured analysis.</p><p class="dialog-note">This build includes a local mission planner and browser persistence. A live AI provider, external project access, autonomous execution, and camera-based tracking are not connected yet.</p></dialog>
+  <dialog id="aboutDialog" class="about-dialog"><button class="dialog-close" id="closeDialog" aria-label="Close">×</button><span class="panel-kicker">ABOUT THE SYSTEM</span><h2>EYENEX <em>NEURAL</em></h2><p>A modular AI command center prototype with two focused environments: Neural Core for commands and workflow planning, and Intelligence Lab for structured analysis.</p><p class="dialog-note">This build includes a local mission planner, browser persistence, and optional camera-based head-pointer controls. Camera tracking is off until explicitly started in Settings.</p></dialog>
   <script src="./assets/js/eyenex.js"></script>
   <script src="./assets/js/orchestration.js"></script>
+  <script src="./assets/js/multimodal.js"></script>
 </body>
 </html>
