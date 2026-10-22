@@ -40,6 +40,9 @@ The settings panel also supports showing/hiding the currently typed key and remo
 - Exactly two environment views with shared navigation.
 - Scrollable Settings drawer with close button, API-key field, model ID field, Test API key, Save locally, show/hide key, and remove saved key controls.
 - OpenRouter chat completions for Neural Core and AI-assisted analysis in Intelligence Lab.
+- Opt-in public GitHub repository reconnaissance in Intelligence Lab: repository metadata, README excerpt, and a capped file-path map.
+- Repository reconnaissance is read-only and user-initiated; it does not download or execute source files, modify a repository, or access private repositories.
+- Sending the fetched public repository summary to OpenRouter requires a separate unchecked-by-default consent checkbox. Without consent, the scan remains local to the browser.
 - Key verification through OpenRouter's authenticated key-information endpoint.
 - Local fallback planner and structured analysis outline.
 - Rule-based draft task plans for planning-style commands.
@@ -63,7 +66,7 @@ This is a static frontend prototype and does not need a build step.
 1. **Foundation and compact workspace:** two focused environments, panel scrolling, local mission planning, and structured outline templates. *(Complete in prototype.)*
 2. **OpenRouter BYOK connection:** direct browser chat and analysis with a locally saved user key. *(Implemented; requires user-supplied key and real-device testing.)*
 3. **Safer public AI architecture:** introduce a secure server-side proxy or a user-controlled authorization flow before a broad public launch. Never place a shared private API key in frontend code or Git.
-4. **Project intelligence:** add explicit, permissioned repository/file connections and analysis tools.
+4. **Project intelligence:** public GitHub repository reconnaissance is now implemented for metadata, README excerpts, and file maps. Deeper source-file review and private-repository access remain future work and require explicit permissioned integration.
 5. **Task orchestration:** add reliable execution logs, approval checkpoints, permissions, and safe recovery before any consequential actions.
 6. **Multimodal controls:** optional camera-based eye/head tracking with calibration, smoothing, pause control, and deliberate blink confirmation.
 7. **Publishing:** GitHub Pages can host the static frontend. Keep server-side AI calls and secrets outside the published frontend.
