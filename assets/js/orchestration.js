@@ -18,6 +18,19 @@
   commandPanel.classList.add('hud-command-panel');
   deck.classList.add('hud-orchestration-panel');
 
+  /* Keep starter actions in a compact, independent panel rather than consuming
+     command-composer space or covering the neural core. Existing button listeners remain intact. */
+  const starterPrompts = $('.starter-prompts', commandPanel);
+  const mainArea = $('.main-area');
+  let starterPanel = null;
+  if (starterPrompts && mainArea) {
+    starterPanel = document.createElement('section');
+    starterPanel.className = 'hud-starter-panel';
+    starterPanel.setAttribute('aria-label', 'Suggested commands');
+    starterPanel.appendChild(starterPrompts);
+    mainArea.appendChild(starterPanel);
+  }
+
   const style = document.createElement('style');
   style.textContent = `
     .orchestration-deck{margin:0;padding:10px;border:1px solid rgba(0,220,255,.2);border-radius:4px;background:linear-gradient(145deg,rgba(2,23,43,.72),rgba(0,6,15,.76));min-width:0;}
@@ -43,12 +56,25 @@
     .hud-command-panel .composer-footer{padding-top:5px!important}
     .hud-command-panel .send-button{font-size:8px!important;padding:6px 8px!important}
 
+    /* Compact starter actions live outside the composer in each environment. */
+    .hud-starter-panel{
+      position:absolute;z-index:11;left:16px;right:auto;top:calc(24vh + min(33vh,252px) + 8px);
+      width:clamp(150px,16vw,190px);max-height:76px;box-sizing:border-box;overflow-y:auto;overflow-x:hidden;
+      padding:6px;border:1px solid rgba(0,220,255,.22);border-radius:4px;
+      background:linear-gradient(145deg,rgba(2,23,43,.92),rgba(0,6,15,.94));
+      box-shadow:0 0 16px rgba(0,140,255,.07);scrollbar-width:thin;overscroll-behavior:contain;
+    }
+    .hud-starter-panel .starter-prompts{display:flex!important;flex-wrap:wrap;gap:4px!important;margin:0!important;padding:0!important;}
+    .hud-starter-panel .prompt-chip{min-height:22px!important;padding:4px 6px!important;font-size:7px!important;line-height:1.25!important;white-space:normal;}
+    .hud-starter-panel .prompt-chip span{font-size:7px!important;}
+
     /* Mission orchestration belongs to Neural Core; keep the Intelligence Lab workspace clear. */
     body[data-environment="lab"] .hud-orchestration-panel{display:none!important;}
+    body[data-environment="lab"] .hud-starter-panel{left:auto;right:16px;top:auto;bottom:174px;width:clamp(150px,16vw,190px);max-height:52px;}
 
     .hud-orchestration-panel{
       position:absolute!important;z-index:10;left:auto!important;right:16px!important;top:auto!important;bottom:184px!important;
-      width:clamp(210px,21vw,270px)!important;height:clamp(154px,21vh,178px)!important;max-height:178px!important;min-height:0!important;
+      width:clamp(168px,16vw,205px)!important;height:clamp(148px,19vh,168px)!important;max-height:168px!important;min-height:0!important;
       margin:0!important;box-sizing:border-box;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain;touch-action:pan-y;
       scrollbar-width:thin;scrollbar-color:rgba(0,220,255,.38) rgba(0,0,0,.15);
       padding:9px!important;border:1px solid rgba(0,220,255,.25);border-radius:4px;
@@ -57,7 +83,14 @@
     }
     .hud-orchestration-panel::-webkit-scrollbar{width:5px}
     .hud-orchestration-panel::-webkit-scrollbar-thumb{background:rgba(0,220,255,.35);border-radius:8px}
-    .hud-orchestration-panel .ops-grid{grid-template-columns:1fr!important;gap:5px!important}
+    .hud-orchestration-panel .ops-grid{grid-template-columns:1fr!important;gap:4px!important}
+    .hud-orchestration-panel .ops-card-title{font-size:6px!important}
+    .hud-orchestration-panel .ops-step{grid-template-columns:16px minmax(0,1fr) 14px;gap:4px;padding:4px}
+    .hud-orchestration-panel .ops-step-index{font-size:6px}
+    .hud-orchestration-panel .ops-step-body strong,.hud-orchestration-panel .ops-approval-card strong{font-size:7px!important}
+    .hud-orchestration-panel .ops-step-body small,.hud-orchestration-panel .ops-approval-card small{font-size:5px!important}
+    .hud-orchestration-panel .ops-btn{font-size:6px!important;padding:4px 5px!important}
+    .hud-orchestration-panel .ops-audit-row{grid-template-columns:35px 42px minmax(0,1fr);gap:3px;font-size:5px}
     .hud-orchestration-panel .ops-timeline{max-height:70px!important;overflow-y:auto!important;touch-action:pan-y}
     .hud-orchestration-panel .ops-audit-card{margin-top:5px!important}
     .hud-orchestration-panel .ops-audit{max-height:52px!important;overflow-y:auto!important;touch-action:pan-y}
@@ -77,7 +110,10 @@
       .hud-command-panel .command-composer{margin:3px 5px 5px!important;padding:6px 7px!important}
       .hud-command-panel .command-composer textarea{font-size:8px!important;min-height:20px!important;max-height:28px!important}
       .hud-command-panel .send-button{font-size:7px!important;padding:5px 7px!important}
-      .hud-orchestration-panel{right:4px!important;bottom:178px!important;width:calc(50% - 7px)!important;height:clamp(132px,19vh,160px)!important;max-height:160px!important;padding:7px!important}
+      .hud-orchestration-panel{right:4px!important;bottom:178px!important;width:clamp(142px,39vw,174px)!important;height:clamp(126px,17vh,148px)!important;max-height:148px!important;padding:6px!important}
+      .hud-starter-panel{left:4px!important;top:auto!important;bottom:178px!important;width:clamp(112px,34vw,148px)!important;max-height:58px!important;padding:4px!important}
+      body[data-environment="lab"] .hud-starter-panel{left:auto!important;right:4px!important;bottom:178px!important}
+      .hud-starter-panel .prompt-chip{font-size:6px!important;padding:3px 4px!important;min-height:20px!important}
       .hud-orchestration-panel .ops-head h3{font-size:8px!important}
       .hud-orchestration-panel .ops-head-right{font-size:5px!important;gap:3px}
       .hud-orchestration-panel .ops-grid{gap:4px!important}
