@@ -3,7 +3,7 @@
   const $ = selector => document.querySelector(selector);
   const startButton = $('#cameraStart'), calibrateButton = $('#cameraCalibrate');
   const pauseButton = $('#cameraPause'), blinkButton = $('#cameraBlink'), stopButton = $('#cameraStop');
-  const modeButton = $('#cameraMode'), openSettingsButton = $('#openSettings');
+  const modeButton = $('#cameraMode'), handButton = $('#cameraHandMode'), openSettingsButton = $('#openSettings');
   const video = $('#cameraPreview'), previewOverlay = $('#cameraPreviewOverlay');
   const status = $('#cameraStatus'), feedback = $('#cameraFeedback');
   const settingsDialog = $('#settingsDialog');
@@ -11,7 +11,7 @@
 
   const WASM_ROOT = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm';
   const MODEL_URL = 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task';
-  let stream = null, landmarker = null, raf = 0, paused = false, blinkConfirm = false;
+  let stream = null, landmarker = null, handLandmarker = null, raf = 0, paused = false, blinkConfirm = false, handMode = false, pinchWasClosed = false, handSmoothed = null, lastHandY = null, lastHandActionAt = 0;
   let baseline = null, smoothed = null, eyeBaseline = null, eyeSmoothed = null, pointerMode = 'head', closedAt = 0, blinkConsumed = false, lastFrameAt = 0;
   let pointer = null, pointerX = window.innerWidth / 2, pointerY = window.innerHeight / 2;
   let lastConfirmAt = 0, lastDetectErrorAt = 0;
@@ -63,11 +63,13 @@
     pauseButton.disabled = !active;
     blinkButton.disabled = !active;
     if (modeButton) modeButton.disabled = !active;
+    if (handButton) handButton.disabled = !active;
     stopButton.disabled = !active;
     startButton.disabled = active;
     pauseButton.textContent = paused ? 'Resume tracking' : 'Pause tracking';
     blinkButton.textContent = 'Blink confirm: ' + (blinkConfirm ? 'ON' : 'OFF');
     if (modeButton) modeButton.textContent = 'Pointer mode: ' + (pointerMode === 'head' ? 'HEAD' : 'EYE GAZE');
+    if (handButton) handButton.textContent = 'Hand gestures: ' + (handMode ? 'ON' : 'OFF');
   }
   async function stopCamera(message = 'Camera stopped. The video stream has been released.') {
     if (raf) cancelAnimationFrame(raf);
@@ -76,6 +78,9 @@
     blinkConfirm = false;
     closedAt = 0;
     blinkConsumed = false;
+    handMode = false; pinchWasClosed = false; handSmoothed = null; lastHandY = null;
+    if (handLandmarker) { try { handLandmarker.close(); } catch (_) {} }
+    handLandmarker = null;
     if (stream) stream.getTracks().forEach(track => track.stop());
     stream = null;
     video.pause();
@@ -103,6 +108,52 @@
       minFacePresenceConfidence: 0.55,
       minTrackingConfidence: 0.55
     });
+  }
+  async function loadHandLandmarker() {
+    const vision = await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/+esm');
+    const files = await vision.FilesetResolver.forVisionTasks(WASM_ROOT);
+    return vision.HandLandmarker.createFromOptions(files, {
+      baseOptions: { modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task', delegate: 'CPU' },
+      runningMode: 'VIDEO', numHands: 1, minHandDetectionConfidence: 0.55, minHandPresenceConfidence: 0.55, minTrackingConfidence: 0.55
+    });
+  }
+  function distance(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+  function handGestureFrame(now) {
+    if (!handMode || !handLandmarker || video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) return;
+    const result = handLandmarker.detectForVideo(video, now);
+    const hand = result.landmarks && result.landmarks[0];
+    if (!hand || hand.length < 21) { pinchWasClosed = false; lastHandY = null; setStatus('HAND NOT DETECTED', true); return; }
+    const tip = hand[8], thumb = hand[4];
+    const sample = { x: 1 - tip.x, y: tip.y };
+    if (!handSmoothed) handSmoothed = sample;
+    else { handSmoothed.x += (sample.x - handSmoothed.x) * 0.34; handSmoothed.y += (sample.y - handSmoothed.y) * 0.34; }
+    updatePointer(handSmoothed.x * window.innerWidth, handSmoothed.y * window.innerHeight);
+    const pinch = distance(tip, thumb) < 0.055;
+    if (pinch && !pinchWasClosed && now - lastHandActionAt > 650) {
+      lastHandActionAt = now; safeConfirmAtPointer();
+    }
+    pinchWasClosed = pinch;
+    const indexUp = hand[8].y < hand[6].y, middleUp = hand[12].y < hand[10].y;
+    const ringUp = hand[16].y < hand[14].y, pinkyUp = hand[20].y < hand[18].y;
+    const openPalm = indexUp && middleUp && ringUp && pinkyUp && !pinch;
+    if (openPalm) {
+      if (lastHandY !== null) {
+        const delta = (handSmoothed.y - lastHandY) * window.innerHeight;
+        if (Math.abs(delta) > 1) {
+          const target = document.elementFromPoint(pointerX, pointerY);
+          const scrollable = target && target.closest('*');
+          let node = scrollable;
+          while (node && node !== document.body) {
+            const style = getComputedStyle(node);
+            if (/(auto|scroll)/.test(style.overflowY) && node.scrollHeight > node.clientHeight + 4) break;
+            node = node.parentElement;
+          }
+          (node && node !== document.body ? node : document.scrollingElement).scrollTop += delta * 1.8;
+        }
+      }
+      lastHandY = handSmoothed.y;
+    } else lastHandY = null;
+    setStatus('HAND GESTURES · ACTIVE', true);
   }
   async function startCamera() {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -176,11 +227,13 @@
               setStatus(blinkConfirm ? 'TRACKING · BLINK ON' : 'TRACKING', true);
             }
             const categories = result.faceBlendshapes && result.faceBlendshapes[0] && result.faceBlendshapes[0].categories;
-            const closed = getBlendshape(categories, 'eyeBlinkLeft') > 0.58 && getBlendshape(categories, 'eyeBlinkRight') > 0.58;
+            const blinkLeft = getBlendshape(categories, 'eyeBlinkLeft');
+            const blinkRight = getBlendshape(categories, 'eyeBlinkRight');
+            const closed = (blinkLeft + blinkRight) / 2 > 0.38 && Math.min(blinkLeft, blinkRight) > 0.18;
             if (closed && closedAt === 0) { closedAt = now; blinkConsumed = false; }
             if (!closed && closedAt > 0) {
               const duration = now - closedAt;
-              if (blinkConfirm && !blinkConsumed && duration >= 250 && duration <= 900) {
+              if (blinkConfirm && !blinkConsumed && duration >= 120 && duration <= 850) {
                 blinkConsumed = true;
                 if (pointer) pointer.classList.add('is-confirming');
                 safeConfirmAtPointer();
@@ -197,6 +250,10 @@
             say('Tracking paused after a frame-processing issue. You can stop and restart the camera.');
           }
         }
+      }
+      if (handMode) {
+        try { handGestureFrame(performance.now()); }
+        catch (_) { setStatus('HAND TRACKING RETRY', true); }
       }
     }
     raf = requestAnimationFrame(tick);
@@ -233,10 +290,32 @@
     setControls(!!stream);
     say(pointerMode === 'eye' ? 'Eye-gaze mode enabled. Use Calibrate center while looking at the screen center; small eye movements steer the pointer.' : 'Head-pointer mode enabled. Use Calibrate center while holding a comfortable neutral head position.');
   });
+  if (handButton) handButton.addEventListener('click', async () => {
+    if (!stream) return;
+    if (handMode) {
+      handMode = false; pinchWasClosed = false; lastHandY = null;
+      if (handLandmarker) { try { handLandmarker.close(); } catch (_) {} }
+      handLandmarker = null;
+      setStatus('TRACKING', true);
+      say('Hand gestures disabled. Your selected head/eye pointer mode is active again.');
+      setControls(true); return;
+    }
+    handButton.disabled = true; say('Loading hand-gesture model…');
+    try {
+      if (!handLandmarker) handLandmarker = await loadHandLandmarker();
+      handMode = true; pinchWasClosed = false; handSmoothed = null; lastHandY = null;
+      setControls(true); setStatus('HAND GESTURES · ACTIVE', true);
+      say('Hand mode active: move your index fingertip to steer; pinch thumb and index finger to click; hold an open palm and move vertically to scroll. Keep your hand fully visible in the camera preview.');
+      tick();
+    } catch (error) {
+      handMode = false; setControls(true);
+      say('Could not load hand tracking: ' + (error && error.message ? error.message.slice(0, 120) : 'model unavailable') + '. Head/eye tracking remains available.');
+    }
+  });
   blinkButton.addEventListener('click', () => {
     blinkConfirm = !blinkConfirm;
     blinkButton.textContent = 'Blink confirm: ' + (blinkConfirm ? 'ON' : 'OFF');
-    say(blinkConfirm ? 'Blink confirmation enabled. Close both eyes deliberately for about 0.25–0.9 seconds, then reopen to confirm a safe button under the pointer. Ordinary short blinks may be ignored.' : 'Blink confirmation disabled. Head tracking remains active.');
+    say(blinkConfirm ? 'Blink confirmation enabled. close both eyes deliberately for about 0.12–0.85 seconds, then reopen to confirm a safe button under the pointer. Ordinary short blinks may be ignored.' : 'Blink confirmation disabled. Head tracking remains active.');
   });
   stopButton.addEventListener('click', () => stopCamera());
   document.addEventListener('visibilitychange', () => {
