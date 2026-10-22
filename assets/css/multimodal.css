@@ -21,3 +21,6 @@
 .eyenex-camera-pointer::after{content:"";position:absolute;inset:5px;border-radius:50%;background:var(--cyan)}
 .eyenex-camera-pointer.is-confirming{border-color:var(--mint);box-shadow:0 0 0 8px rgba(161,244,208,.16),0 0 22px rgba(161,244,208,.8)}
 @media(max-width:760px){.camera-control-card{padding:13px}.camera-control-actions .settings-action{flex:1 1 auto}}
+
+/* Keep the camera pointer usable both inside Settings and in the main HUD. */
+.eyenex-camera-pointer{touch-action:none}
