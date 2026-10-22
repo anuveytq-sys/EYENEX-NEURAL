@@ -8,6 +8,13 @@
   const esc = v => String(v).replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]));
   const deck = $('#orchestrationDeck');
   if (!deck) return;
+  const style = document.createElement('style');
+  style.textContent = `
+    .orchestration-deck{margin:8px 9px 10px;padding:10px;border:1px solid rgba(0,220,255,.2);border-radius:4px;background:linear-gradient(145deg,rgba(2,23,43,.72),rgba(0,6,15,.76));min-width:0;flex:0 0 auto;}
+    .ops-head,.ops-card-title,.ops-head-right{display:flex;align-items:center;justify-content:space-between;gap:8px}.ops-head h3{margin:3px 0 0;color:#e8fbff;font-size:11px}.ops-head-right{font:7px 'DM Mono',monospace;color:#62dced;white-space:nowrap}.ops-pulse{padding:3px 5px;border:1px solid rgba(0,234,255,.25);border-radius:3px}.ops-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:7px;margin-top:8px}.ops-card,.ops-audit-card{border:1px solid rgba(85,184,212,.16);border-radius:4px;background:rgba(0,8,18,.42);padding:8px;min-width:0}.ops-card-title{font:7px 'DM Mono',monospace;letter-spacing:.1em;color:#6daabd}.ops-icon-btn,.ops-text-btn{border:0;background:transparent;color:#59dff3;cursor:pointer;font:8px 'DM Mono',monospace}.ops-lock{color:#8aa5b0;font-size:6px}.ops-timeline{margin-top:6px;display:grid;gap:4px;max-height:96px;overflow:auto}.ops-step{display:grid;grid-template-columns:22px 1fr 18px;align-items:center;gap:6px;padding:5px;border-left:1px solid rgba(0,220,255,.18);background:rgba(0,170,255,.025)}.ops-step-index{font:7px 'DM Mono',monospace;color:#4e91a7}.ops-step-body{min-width:0}.ops-step-body strong,.ops-approval-card strong{display:block;color:#dff8ff;font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ops-step-body small,.ops-approval-card small{display:block;margin-top:2px;color:rgba(187,219,230,.62);font-size:6px;line-height:1.35}.ops-node{display:grid;place-items:center;width:16px;height:16px;border-radius:50%;font-size:8px;border:1px solid rgba(115,170,190,.3);color:#668b99}.ops-node.active{color:#5fe9ff;border-color:#36d9ef;box-shadow:0 0 8px rgba(0,220,255,.25)}.ops-node.done,.ops-node.approved{color:#74e7c2;border-color:rgba(116,231,194,.45)}.ops-approval{margin-top:6px}.ops-approval-card{display:grid;gap:7px}.ops-actions{display:flex;flex-wrap:wrap;gap:4px}.ops-btn{border:1px solid rgba(88,179,204,.25);background:rgba(0,120,180,.08);color:#bdebf5;border-radius:3px;padding:5px 6px;font:7px 'DM Mono',monospace;cursor:pointer}.ops-btn.primary{border-color:rgba(0,234,255,.45);color:#62e9fb;background:rgba(0,180,230,.1)}.ops-audit-card{margin-top:7px}.ops-audit{max-height:65px;overflow:auto;margin-top:5px}.ops-audit-row{display:grid;grid-template-columns:45px 55px 1fr;gap:5px;padding:4px 0;border-top:1px solid rgba(90,170,194,.09);font-size:6px}.ops-audit-row time{color:#4d8291;font-family:'DM Mono',monospace}.ops-audit-row span{color:#60dcec;font-family:'DM Mono',monospace}.ops-audit-row p{margin:0;color:rgba(205,228,237,.66)}.ops-empty{padding:8px;color:rgba(130,178,193,.58);font:7px 'DM Mono',monospace;letter-spacing:.05em;text-align:center}.ops-boundary{margin:6px 0 0;color:rgba(117,166,181,.5);font:6px 'DM Mono',monospace;text-align:right}.orchestration-deck button:focus-visible{outline:1px solid #48e6fa;outline-offset:2px}
+    @media(max-width:760px){.orchestration-deck{margin:6px 6px 7px;padding:7px}.ops-head h3{font-size:9px}.ops-grid{grid-template-columns:1fr;gap:5px}.ops-timeline{max-height:74px}.ops-audit{max-height:55px}.ops-step-body strong,.ops-approval-card strong{font-size:7px}.ops-step-body small,.ops-approval-card small{font-size:5px}.ops-btn{font-size:6px;padding:4px 5px}.ops-boundary{font-size:5px}}
+  `;
+  document.head.appendChild(style);
   const timeline = $('#opsTimeline');
   const audit = $('#opsAudit');
   const approval = $('#opsApproval');
@@ -17,58 +24,21 @@
   const missions = () => safeJSON(MISSION_STORAGE, []).filter(m => m && typeof m.title === 'string');
   const now = () => new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
   const writeState = () => save(STORAGE, state);
-  function addAudit(type, text, id) {
-    state.audit.unshift({ type, text, id: id || '', time: now() });
-    state.audit = state.audit.slice(0, 30);
-    writeState();
-  }
+  function addAudit(type, text, id) { state.audit.unshift({ type, text, id: id || '', time: now() }); state.audit = state.audit.slice(0, 30); writeState(); }
   function render() {
-    const list = missions();
-    const done = list.filter(m => m.state === 'DONE').length;
+    const list = missions(), done = list.filter(m => m.state === 'DONE').length;
     const active = list.find(m => m.state === 'IN PROGRESS') || list.find(m => m.state === 'READY');
     progress.textContent = list.length ? `${done}/${list.length} COMPLETE · ${active ? active.state : 'STABLE'}` : 'NO ACTIVE MISSION';
     pulse.textContent = active ? 'SYNCED' : 'STANDBY';
-    if (!list.length) {
-      timeline.innerHTML = '<div class="ops-empty">MISSION TELEMETRY AWAITS A WORKFLOW</div>';
-      approval.innerHTML = '<div class="ops-empty">No task is waiting for approval.</div>';
-    } else {
-      timeline.innerHTML = list.map((m, i) => {
-        const approved = state.approvals[m.id] === true;
-        const doneClass = m.state === 'DONE' ? ' is-done' : '';
-        return `<div class="ops-step${doneClass}"><span class="ops-step-index">${String(i + 1).padStart(2, '0')}</span><div class="ops-step-body"><strong>${esc(m.title)}</strong><small>${esc(m.detail || 'LOCAL PLAN')} · ${esc(m.state || 'READY')}</small></div><span class="ops-node ${m.state === 'DONE' ? 'done' : m.state === 'IN PROGRESS' ? 'active' : approved ? 'approved' : 'waiting'}">${m.state === 'DONE' ? '✓' : m.state === 'IN PROGRESS' ? '◒' : approved ? '✓' : '○'}</span></div>`;
-      }).join('');
-      if (active) {
-        const approved = state.approvals[active.id] === true;
-        approval.innerHTML = `<div class="ops-approval-card"><div><span class="panel-kicker">NEXT CHECKPOINT</span><strong>${esc(active.title)}</strong><small>${approved ? 'Approved locally · ready for the next manual step.' : 'Human approval required before this checkpoint is considered cleared.'}</small></div><div class="ops-actions"><button type="button" class="ops-btn primary" data-ops-approve="${esc(active.id)}">${approved ? 'Approved ✓' : 'Approve checkpoint'}</button><button type="button" class="ops-btn" data-ops-hold="${esc(active.id)}">Hold</button><button type="button" class="ops-btn" data-ops-recover="${esc(active.id)}">Recovery note</button></div></div>`;
-      } else approval.innerHTML = '<div class="ops-empty">All queued tasks are complete. No checkpoint is awaiting approval.</div>';
+    if (!list.length) { timeline.innerHTML = '<div class="ops-empty">MISSION TELEMETRY AWAITS A WORKFLOW</div>'; approval.innerHTML = '<div class="ops-empty">No task is waiting for approval.</div>'; }
+    else {
+      timeline.innerHTML = list.map((m,i) => { const approved=state.approvals[m.id]===true; const cls=m.state==='DONE'?' is-done':''; return `<div class="ops-step${cls}"><span class="ops-step-index">${String(i+1).padStart(2,'0')}</span><div class="ops-step-body"><strong>${esc(m.title)}</strong><small>${esc(m.detail||'LOCAL PLAN')} · ${esc(m.state||'READY')}</small></div><span class="ops-node ${m.state==='DONE'?'done':m.state==='IN PROGRESS'?'active':approved?'approved':'waiting'}">${m.state==='DONE'?'✓':m.state==='IN PROGRESS'?'◒':approved?'✓':'○'}</span></div>`; }).join('');
+      if(active){const approved=state.approvals[active.id]===true; approval.innerHTML=`<div class="ops-approval-card"><div><span class="panel-kicker">NEXT CHECKPOINT</span><strong>${esc(active.title)}</strong><small>${approved?'Approved locally · ready for the next manual step.':'Human approval required before this checkpoint is considered cleared.'}</small></div><div class="ops-actions"><button type="button" class="ops-btn primary" data-ops-approve="${esc(active.id)}">${approved?'Approved ✓':'Approve checkpoint'}</button><button type="button" class="ops-btn" data-ops-hold="${esc(active.id)}">Hold</button><button type="button" class="ops-btn" data-ops-recover="${esc(active.id)}">Recovery note</button></div></div>`;} else approval.innerHTML='<div class="ops-empty">All queued tasks are complete. No checkpoint is awaiting approval.</div>';
     }
-    audit.innerHTML = state.audit.length ? state.audit.slice(0, 8).map(e => `<div class="ops-audit-row"><time>${esc(e.time)}</time><span>${esc(e.type)}</span><p>${esc(e.text)}</p></div>`).join('') : '<div class="ops-empty">Audit trail is clean. No orchestration events recorded yet.</div>';
+    audit.innerHTML=state.audit.length?state.audit.slice(0,8).map(e=>`<div class="ops-audit-row"><time>${esc(e.time)}</time><span>${esc(e.type)}</span><p>${esc(e.text)}</p></div>`).join(''):'<div class="ops-empty">Audit trail is clean. No orchestration events recorded yet.</div>';
   }
-  deck.addEventListener('click', event => {
-    const approve = event.target.closest('[data-ops-approve]');
-    const hold = event.target.closest('[data-ops-hold]');
-    const recover = event.target.closest('[data-ops-recover]');
-    if (approve) {
-      const id = approve.dataset.opsApprove;
-      state.approvals[id] = true;
-      addAudit('APPROVED', 'Human checkpoint approved locally. No external action was executed.', id);
-      render();
-    }
-    if (hold) {
-      const id = hold.dataset.opsHold;
-      state.approvals[id] = false;
-      addAudit('HELD', 'Checkpoint held for review. No external action was executed.', id);
-      render();
-    }
-    if (recover) {
-      const id = recover.dataset.opsRecover;
-      state.recovered[id] = now();
-      addAudit('RECOVERY', 'Recovery marker created. Review the mission queue before continuing.', id);
-      render();
-    }
-  });
-  $('#opsClearAudit')?.addEventListener('click', () => { state.audit = []; writeState(); render(); });
-  $('#opsRefresh')?.addEventListener('click', () => { addAudit('SYNC', 'Mission telemetry refreshed from browser-local queue.', ''); render(); });
-  render();
-  setInterval(render, 1200);
+  deck.addEventListener('click',event=>{const approve=event.target.closest('[data-ops-approve]'),hold=event.target.closest('[data-ops-hold]'),recover=event.target.closest('[data-ops-recover]');if(approve){const id=approve.dataset.opsApprove;state.approvals[id]=true;addAudit('APPROVED','Human checkpoint approved locally. No external action was executed.',id);render();}if(hold){const id=hold.dataset.opsHold;state.approvals[id]=false;addAudit('HELD','Checkpoint held for review. No external action was executed.',id);render();}if(recover){const id=recover.dataset.opsRecover;state.recovered[id]=now();addAudit('RECOVERY','Recovery marker created. Review the mission queue before continuing.',id);render();}});
+  $('#opsClearAudit')?.addEventListener('click',()=>{state.audit=[];writeState();render();});
+  $('#opsRefresh')?.addEventListener('click',()=>{addAudit('SYNC','Mission telemetry refreshed from browser-local queue.','');render();});
+  render(); setInterval(render,1200);
 })();
