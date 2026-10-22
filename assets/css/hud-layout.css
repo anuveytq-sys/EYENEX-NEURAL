@@ -257,3 +257,208 @@ body[data-environment="lab"] .core-visual { display: none; }
 @media (max-width: 760px) {
   .core-visual { width: min(78vw, 520px) !important; height: min(52vh, 400px) !important; top: 42% !important; }
 }
+
+
+/* --- Focused visual correction: make the intended HUD visibly distinct --- */
+:root {
+  --hud-cyan: #42f6ff;
+  --hud-blue: #178dff;
+  --hud-line: rgba(50, 231, 255, .30);
+  --hud-panel: rgba(2, 15, 31, .88);
+}
+.main-area {
+  background:
+    radial-gradient(ellipse at 50% 43%, rgba(0, 115, 190, .13), transparent 36%),
+    linear-gradient(rgba(0, 218, 255, .025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 218, 255, .025) 1px, transparent 1px);
+  background-size: auto, 36px 36px, 36px 36px;
+  background-position: center, center 76px, center 76px;
+}
+.rail {
+  width: 62px !important;
+  flex-basis: 62px !important;
+  gap: 10px;
+  background: linear-gradient(180deg, rgba(0, 16, 31, .97), rgba(0, 5, 13, .98));
+  border-right: 1px solid rgba(40, 225, 255, .28);
+  box-shadow: 8px 0 28px rgba(0, 0, 0, .24);
+}
+.main-area { width: calc(100% - 62px) !important; }
+.rail-divider { display: none !important; }
+.rail .brand-mark {
+  position: relative;
+  width: 42px; height: 42px; flex: 0 0 42px;
+  margin-top: 2px; margin-bottom: 7px;
+  border-radius: 12px;
+  border: 1px solid rgba(68, 244, 255, .82);
+  background: linear-gradient(145deg, rgba(0, 239, 255, .25), rgba(3, 29, 57, .92));
+  box-shadow: 0 0 24px rgba(0, 220, 255, .23), inset 0 0 17px rgba(0, 220, 255, .12);
+}
+.rail .brand-mark::after {
+  content: "EYENEX";
+  position: absolute; top: 49px; left: 50%;
+  transform: translateX(-50%);
+  color: rgba(105, 233, 255, .8);
+  font: 700 7px/1 "DM Mono", monospace;
+  letter-spacing: .17em;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  text-shadow: 0 0 12px rgba(0, 220, 255, .25);
+}
+.rail-spacer { flex: 1 1 auto; min-height: 0; }
+.topbar {
+  top: 10px; height: 54px;
+  border-radius: 8px;
+  border-color: rgba(47, 219, 255, .30);
+  background: linear-gradient(100deg, rgba(3, 29, 53, .96), rgba(1, 9, 22, .93) 70%);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, .22), inset 0 1px rgba(111, 247, 255, .08);
+}
+.wordmark-icon {
+  width: 31px; height: 31px;
+  border: 1px solid rgba(64, 237, 255, .56);
+  box-shadow: 0 0 16px rgba(0, 220, 255, .16);
+}
+.wordmark strong { font-size: 12px; letter-spacing: .2em; }
+.wordmark small { color: #7fa8c1; }
+.settings-trigger { border-radius: 7px; }
+.environment { top: 76px; bottom: 184px; }
+.core-visual {
+  width: min(58vw, 700px) !important;
+  height: min(66vh, 570px) !important;
+  top: 48% !important;
+  border: 0 !important;
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse at 50% 48%, rgba(0, 125, 255, .15), rgba(0, 25, 55, .04) 42%, transparent 70%) !important;
+  filter: drop-shadow(0 0 38px rgba(0, 128, 255, .18));
+  isolation: isolate;
+}
+.core-visual::before {
+  content: "";
+  position: absolute;
+  inset: 6%;
+  border: 1px solid rgba(52, 224, 255, .10);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at center, transparent 0 44%, rgba(31, 222, 255, .08) 44.2% 44.5%, transparent 44.8%),
+    radial-gradient(circle at center, transparent 0 61%, rgba(31, 222, 255, .10) 61.2% 61.5%, transparent 61.8%),
+    radial-gradient(circle at center, transparent 0 78%, rgba(31, 222, 255, .07) 78.2% 78.5%, transparent 78.8%);
+  pointer-events: none;
+  z-index: 2;
+}
+.neural-core-canvas {
+  z-index: 3;
+  filter: drop-shadow(0 0 24px rgba(0, 186, 255, .24));
+}
+.core-visual .orbit {
+  border-color: rgba(72, 233, 255, .48);
+  box-shadow: 0 0 18px rgba(0, 198, 255, .13), inset 0 0 12px rgba(0, 198, 255, .05);
+}
+.core-visual .orbit-a { width: min(43vw, 520px); height: min(19vw, 210px); }
+.core-visual .orbit-b { width: min(39vw, 470px); height: min(24vw, 260px); }
+.core-visual .orbit-c { width: min(48vw, 570px); height: min(31vw, 330px); }
+.core-visual .visual-tag {
+  padding: 9px 12px;
+  border-radius: 6px;
+  border-color: rgba(64, 230, 255, .38);
+  background: linear-gradient(110deg, rgba(0, 32, 59, .94), rgba(0, 10, 24, .88));
+  box-shadow: 0 5px 25px rgba(0, 0, 0, .24), inset 0 0 18px rgba(0, 196, 255, .07);
+  font-size: 8px;
+  letter-spacing: .14em;
+}
+.core-visual .tag-top { top: 8%; right: 5%; }
+.core-visual .tag-bottom { bottom: 8%; left: 5%; }
+.core-visual::after {
+  content: "NEURAL FIELD  /  INTERACTIVE 3D";
+  position: absolute; left: 50%; bottom: 1%;
+  transform: translateX(-50%);
+  z-index: 7;
+  padding: 7px 12px;
+  border: 1px solid rgba(51, 220, 255, .22);
+  border-radius: 4px;
+  background: rgba(0, 11, 26, .78);
+  color: rgba(126, 230, 255, .8);
+  font: 8px/1.2 "DM Mono", monospace;
+  letter-spacing: .18em;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.mission-panel, .system-panel {
+  width: clamp(205px, 20vw, 258px);
+  height: min(35vh, 278px);
+  border-radius: 8px;
+  border: 1px solid rgba(55, 216, 255, .28);
+  background: linear-gradient(145deg, rgba(4, 27, 49, .94), rgba(0, 9, 22, .90));
+  box-shadow: 0 14px 36px rgba(0, 0, 0, .24), inset 0 1px rgba(113, 235, 255, .07), inset 0 0 22px rgba(0, 168, 255, .035);
+  backdrop-filter: blur(12px);
+}
+.mission-panel { left: 12px; top: 19%; }
+.system-panel { right: 12px; top: 19%; }
+.panel-heading { padding: 15px 15px 12px; }
+.panel-heading h2 { font-size: 12px; letter-spacing: .015em; }
+.panel-kicker { color: #6bbdd3; font-size: 8px; }
+.empty-state { padding-top: 20px; }
+.empty-symbol { text-shadow: 0 0 18px rgba(0, 224, 255, .55); }
+.status-list > div { padding: 9px 0; }
+.command-panel {
+  bottom: 12px;
+  width: min(760px, calc(100% - 42px));
+  height: 164px; max-height: 164px;
+  border: 1px solid rgba(53, 223, 255, .37);
+  border-radius: 9px;
+  background: linear-gradient(145deg, rgba(3, 25, 47, .97), rgba(0, 7, 18, .97));
+  box-shadow: 0 15px 42px rgba(0, 0, 0, .32), 0 0 34px rgba(0, 154, 255, .12), inset 0 1px rgba(127, 241, 255, .08);
+}
+.command-panel .conversation { padding: 10px 16px 5px; }
+.command-composer {
+  border: 1px solid rgba(51, 214, 255, .22);
+  border-radius: 7px;
+  background: rgba(0, 7, 18, .86);
+}
+.send-button { border-radius: 6px; }
+@media (max-width: 1000px) {
+  .mission-panel, .system-panel { width: clamp(170px, 23vw, 220px); }
+  .core-visual { width: min(62vw, 560px) !important; height: min(54vh, 410px) !important; }
+  .core-visual .orbit-a { width: min(46vw, 410px); }
+  .core-visual .orbit-b { width: min(43vw, 390px); }
+  .core-visual .orbit-c { width: min(50vw, 450px); }
+}
+@media (max-width: 760px) {
+  .rail { width: 40px !important; flex-basis: 40px !important; }
+  .main-area { width: calc(100% - 40px) !important; padding-left: 8px; padding-right: 8px; }
+  .rail .brand-mark { width: 28px; height: 28px; border-radius: 8px; }
+  .rail .brand-mark::after { font-size: 6px; top: 35px; }
+  .topbar { left: 8px; right: 8px; padding: 0 9px; }
+  .wordmark strong { font-size: 9px; letter-spacing: .12em; }
+  .wordmark-icon { width: 24px; height: 24px; }
+  .topbar-right { gap: 5px; }
+  .system-state { display: none; }
+  .top-separator { display: none; }
+  .settings-trigger { padding: 6px 7px; }
+  .settings-word { display: none; }
+  .environment { top: 68px; bottom: 178px; }
+  .mission-panel, .system-panel {
+    width: calc(50% - 14px); height: 30%;
+    top: 4%; left: 6px; right: auto;
+  }
+  .system-panel { left: auto; right: 6px; }
+  .core-visual {
+    width: min(94vw, 420px) !important;
+    height: min(43vh, 310px) !important;
+    top: 59% !important;
+  }
+  .core-visual .orbit-a { width: 70vw; height: 25vw; }
+  .core-visual .orbit-b { width: 66vw; height: 31vw; }
+  .core-visual .orbit-c { width: 76vw; height: 39vw; }
+  .core-visual .tag-top { top: 1%; right: 0; }
+  .core-visual .tag-bottom { bottom: 1%; left: 0; }
+  .core-visual::after { bottom: -2%; font-size: 6px; letter-spacing: .1em; }
+  .command-panel { width: calc(100% - 16px); height: 158px; max-height: 158px; bottom: 7px; }
+}
+@media (max-width: 390px) {
+  .rail { width: 34px !important; flex-basis: 34px !important; }
+  .main-area { width: calc(100% - 34px) !important; }
+  .rail .brand-mark::after { display: none; }
+  .mission-panel, .system-panel { height: 29%; }
+  .core-visual { top: 59% !important; height: min(39vh, 270px) !important; }
+  .core-visual::after { display: none; }
+}
