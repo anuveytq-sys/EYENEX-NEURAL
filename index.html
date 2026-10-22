@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#070b13" />
+  <meta name="description" content="EYENEX NEURAL — an intelligent command center for research, project intelligence, and coordinated workflows." />
+  <title>EYENEX NEURAL — Intelligence Interface</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./assets/css/eyenex.css" />
+</head>
+<body>
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <div class="app-shell">
+    <aside class="rail">
+      <a class="brand-mark" href="#" aria-label="EYENEX home"><span class="brand-glyph">E</span></a>
+      <div class="rail-divider"></div>
+      <button class="rail-button active" data-env="core" aria-label="Neural Core" title="Neural Core"><span>◈</span></button>
+      <button class="rail-button" data-env="lab" aria-label="Intelligence Lab" title="Intelligence Lab"><span>⌘</span></button>
+      <div class="rail-spacer"></div>
+      <button class="rail-button" id="helpButton" aria-label="About EYENEX" title="About EYENEX"><span>?</span></button>
+      <div class="status-dot" title="Interface online"></div>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar">
+        <div class="wordmark"><span class="wordmark-icon">E</span><div><strong>EYENEX <em>NEURAL</em></strong><small>INTELLIGENCE SYSTEM <span class="version">/ 0.1</span></small></div></div>
+        <div class="topbar-right"><span class="system-state"><i></i> LOCAL INTERFACE READY</span><span class="top-separator"></span><span class="clock" id="clock">--:--:--</span><button class="avatar" aria-label="Workspace profile">N</button></div>
+      </header>
+
+      <section class="environment-tabs" aria-label="Choose environment">
+        <button class="env-tab selected" data-env="core"><span class="tab-index">01</span><span><strong>NEURAL CORE</strong><small>Command &amp; orchestration</small></span><b>↗</b></button>
+        <button class="env-tab" data-env="lab"><span class="tab-index">02</span><span><strong>INTELLIGENCE LAB</strong><small>Analysis &amp; project insight</small></span><b>↗</b></button>
+        <div class="tab-note"><span class="pulse"></span> TWO ENVIRONMENTS · ONE INTELLIGENCE</div>
+      </section>
+
+      <section class="environment active" id="coreEnvironment">
+        <div class="hero-row">
+          <div><div class="eyebrow"><span class="eyebrow-line"></span> CENTRAL INTELLIGENCE / 01</div><h1>Think beyond<br /><span>the interface.</span></h1><p class="hero-copy">One command center to reason through problems, coordinate work, and turn complex goals into clear next steps.</p></div>
+          <div class="core-visual" aria-label="Abstract 3D neural core visualization">
+            <div class="orbit orbit-a"></div><div class="orbit orbit-b"></div><div class="orbit orbit-c"></div>
+            <div class="core-halo"></div><div class="core-sphere"><div class="sphere-shine"></div><div class="sphere-grid"></div></div>
+            <span class="orbit-node node-a"></span><span class="orbit-node node-b"></span><span class="orbit-node node-c"></span>
+            <div class="visual-tag tag-top"><span>NEURAL CORE</span><b>ACTIVE</b></div><div class="visual-tag tag-bottom"><span>COORDINATION</span><b>STANDBY</b></div>
+          </div>
+        </div>
+
+        <div class="core-grid">
+          <section class="panel command-panel">
+            <div class="panel-heading"><div><span class="panel-kicker">01 / INPUT</span><h2>Command interface</h2></div><span class="panel-icon">↳</span></div>
+            <div class="conversation" id="conversation" aria-live="polite">
+              <div class="message system-message"><span class="message-mark">E</span><div><small>EYENEX NEURAL <time>JUST NOW</time></small><p>Neural Core initialized. Describe a goal, ask a question, or outline a task. I’ll help structure the next steps.</p></div></div>
+              <div class="starter-prompts"><button class="prompt-chip">Plan a complex task <span>↗</span></button><button class="prompt-chip">Explain an idea <span>↗</span></button><button class="prompt-chip">Review a project <span>↗</span></button></div>
+            </div>
+            <form class="command-composer" id="commandForm"><label class="sr-only" for="commandInput">Enter a command</label><textarea id="commandInput" rows="1" placeholder="Tell NEURAL what you want to accomplish…" required></textarea><div class="composer-footer"><span><i class="composer-dot"></i> DEMO MODE <span class="composer-muted">· AI provider not connected</span></span><button class="send-button" type="submit">Send command <b>↗</b></button></div></form>
+          </section>
+
+          <aside class="side-stack">
+            <section class="panel mission-panel"><div class="panel-heading"><div><span class="panel-kicker">02 / WORKFLOW</span><h2>Mission queue</h2></div><span class="count-pill" id="missionCount">00</span></div><div class="empty-state" id="missionList"><div class="empty-symbol">＋</div><strong>No active missions</strong><p>Tasks you plan will appear here, ready to review and organize.</p></div><button class="text-action" id="sampleMission">Load sample workflow <span>→</span></button></section>
+            <section class="panel system-panel"><div class="panel-heading"><div><span class="panel-kicker">03 / SYSTEM</span><h2>Core status</h2></div><span class="live-label"><i></i> LIVE UI</span></div><div class="status-list"><div><span>Interface</span><strong class="status-good">OPERATIONAL</strong></div><div><span>AI connection</span><strong class="status-wait">NOT CONNECTED</strong></div><div><span>Project access</span><strong>NOT CONFIGURED</strong></div><div><span>Eye / head tracking</span><strong>PLANNED</strong></div></div><div class="system-foot"><span class="mini-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>UI STATUS ONLY · NO BACKEND</span></div></section>
+          </aside>
+        </div>
+      </section>
+
+      <section class="environment" id="labEnvironment">
+        <div class="lab-heading"><div><div class="eyebrow"><span class="eyebrow-line"></span> ANALYSIS ENVIRONMENT / 02</div><h1>Intelligence <span>Lab.</span></h1><p class="hero-copy">Turn project context and raw information into structured understanding, findings, and next actions.</p></div><div class="lab-orb"><div class="lab-orb-ring"></div><div class="lab-orb-core">N<span>+</span></div></div></div>
+        <div class="lab-grid">
+          <section class="panel analysis-panel"><div class="panel-heading"><div><span class="panel-kicker">01 / ANALYSIS DESK</span><h2>What are we investigating?</h2></div><span class="panel-icon">⌕</span></div><form id="analysisForm" class="analysis-form"><label for="analysisInput">SUBJECT OR QUESTION</label><textarea id="analysisInput" rows="3" placeholder="Describe a project, paste a question, or outline information you want to examine…"></textarea><div class="analysis-options"><label><input type="checkbox" checked /> Find key points</label><label><input type="checkbox" checked /> Suggest next steps</label><label><input type="checkbox" /> Check assumptions</label></div><button class="primary-button" type="submit">Structure analysis <span>↗</span></button></form><div id="analysisResult" class="analysis-result"><div class="result-placeholder"><span>◇</span><strong>Analysis workspace ready</strong><p>Your structured outline will appear here. Live AI analysis will be enabled when a provider is connected.</p></div></div></section>
+          <aside class="lab-side"><section class="panel insight-panel"><div class="panel-heading"><div><span class="panel-kicker">02 / INSIGHT MAP</span><h2>Reasoning structure</h2></div></div><div class="insight-map"><div class="map-node node-source">INPUT<span>Question / project</span></div><div class="map-link"></div><div class="map-node node-process">ANALYZE<span>Organize evidence</span></div><div class="map-branches"><i></i><i></i><i></i></div><div class="map-outcomes"><div>FINDINGS</div><div>RISKS</div><div>NEXT STEPS</div></div></div><p class="map-caption">Conceptual workflow · not live AI reasoning</p></section><section class="panel boundary-panel"><div class="panel-heading"><div><span class="panel-kicker">03 / TRUST LAYER</span><h2>Grounded by design</h2></div><span class="shield">◇</span></div><ul class="trust-list"><li><span>01</span> Separate evidence from assumptions</li><li><span>02</span> Flag uncertainty instead of guessing</li><li><span>03</span> Review actions before execution</li></ul></section></aside>
+        </div>
+      </section>
+
+      <footer class="footer"><span>EYENEX NEURAL <b>·</b> CONCEPT BUILD 001</span><span>INTELLIGENCE WITH HUMAN OVERSIGHT <span class="footer-mark">✳</span></span></footer>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <dialog id="aboutDialog" class="about-dialog"><button class="dialog-close" id="closeDialog" aria-label="Close">×</button><span class="panel-kicker">ABOUT THE SYSTEM</span><h2>EYENEX <em>NEURAL</em></h2><p>A modular AI command center prototype with two focused environments: Neural Core for commands and workflow planning, and Intelligence Lab for structured analysis.</p><p class="dialog-note">This repository currently contains a frontend concept. AI provider integration, project access, autonomous execution, and camera-based tracking are not connected yet.</p></dialog>
+  <script src="./assets/js/eyenex.js"></script>
+</body>
+</html>
