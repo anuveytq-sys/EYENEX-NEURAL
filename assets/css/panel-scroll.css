@@ -48,3 +48,7 @@
  .mission-panel,.system-panel,.insight-panel,.boundary-panel{max-height:42vh}
  .analysis-panel{max-height:62vh}
 }
+
+.mission-state{border:0;background:transparent;padding:2px 4px;cursor:pointer;border-radius:4px}
+.mission-state:hover{background:rgba(112,232,242,.08);color:var(--cyan)}
+.mission-remove:focus-visible,.mission-state:focus-visible,.mission-clear:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
