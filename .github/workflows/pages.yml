@@ -37,7 +37,10 @@ jobs:
           test -f assets/css/fixed-frame.css
           test -f assets/css/hud-layout.css
           test -f assets/js/eyenex.js
-          echo "EYENEX NEURAL static files are present."
+          test -f assets/css/multimodal.css
+          test -f assets/js/multimodal.js
+          node --check assets/js/multimodal.js
+          echo "EYENEX NEURAL static files and multimodal JavaScript syntax are valid."
 
       - name: Upload website artifact
         uses: actions/upload-pages-artifact@v3
