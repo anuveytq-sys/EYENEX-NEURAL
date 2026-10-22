@@ -135,24 +135,81 @@
   const approval = $('#opsApproval');
   const progress = $('#opsProgress');
   const pulse = $('#opsPulse');
-  const state = safeJSON(STORAGE, { approvals: {}, audit: [], recovered: {} });
+  const state = Object.assign({ approvals: {}, audit: [], recovered: {} }, safeJSON(STORAGE, {}));
+  state.approvals = state.approvals && typeof state.approvals === 'object' ? state.approvals : {};
+  state.audit = Array.isArray(state.audit) ? state.audit : [];
+  state.recovered = state.recovered && typeof state.recovered === 'object' ? state.recovered : {};
   const missions = () => safeJSON(MISSION_STORAGE, []).filter(m => m && typeof m.title === 'string');
   const now = () => new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const stamp = () => new Date().toISOString();
+  const timeOf = value => { if (!value) return 'TIME NOT RECORDED'; const d = new Date(value); return Number.isNaN(d.getTime()) ? 'TIME NOT RECORDED' : d.toLocaleString([], { hour12: false, month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }); };
   const writeState = () => save(STORAGE, state);
-  function addAudit(type, text, id) { state.audit.unshift({ type, text, id: id || '', time: now() }); state.audit = state.audit.slice(0, 30); writeState(); }
+  function addAudit(type, text, id) { state.audit.unshift({ type, text, id: id || '', time: now(), timestamp: stamp() }); state.audit = state.audit.slice(0, 30); writeState(); }
+  let observedStates = new Map(missions().map(m => [m.id, m.state || 'READY']));
   function render() {
     const list = missions(), done = list.filter(m => m.state === 'DONE').length;
-    const active = list.find(m => m.state === 'IN PROGRESS') || list.find(m => m.state === 'READY');
-    progress.textContent = list.length ? `${done}/${list.length} COMPLETE · ${active ? active.state : 'STABLE'}` : 'NO ACTIVE MISSION';
-    pulse.textContent = active ? 'SYNCED' : 'STANDBY';
+    const failed = list.filter(m => m.state === 'FAILED').length;
+    const running = list.find(m => m.state === 'IN PROGRESS');
+    const failedMission = list.find(m => m.state === 'FAILED');
+    const active = failedMission || running || list.find(m => m.state === 'READY');
+    list.forEach(m => {
+      const prior = observedStates.get(m.id);
+      if (prior && prior !== m.state) {
+        const type = m.state === 'DONE' ? 'COMPLETED' : m.state === 'FAILED' ? 'FAILED' : m.state === 'IN PROGRESS' ? 'STARTED' : 'RESET';
+        addAudit(type, m.state === 'FAILED' ? (m.error || 'Task marked failed during review.') : 'Task status changed from ' + prior + ' to ' + m.state + '.', m.id);
+      }
+      observedStates.set(m.id, m.state || 'READY');
+    });
+    progress.textContent = list.length ? `${done}/${list.length} COMPLETE · ${failed} FAILED · ${active ? active.state : 'STABLE'}` : 'NO ACTIVE MISSION';
+    pulse.textContent = failed ? 'RECOVERY REVIEW' : running ? 'IN PROGRESS' : active ? 'CHECKPOINT' : 'STANDBY';
     if (!list.length) { timeline.innerHTML = '<div class="ops-empty">MISSION TELEMETRY AWAITS A WORKFLOW</div>'; approval.innerHTML = '<div class="ops-empty">No task is waiting for approval.</div>'; }
     else {
-      timeline.innerHTML = list.map((m,i) => { const approved=state.approvals[m.id]===true; const cls=m.state==='DONE'?' is-done':''; return `<div class="ops-step${cls}"><span class="ops-step-index">${String(i+1).padStart(2,'0')}</span><div class="ops-step-body"><strong>${esc(m.title)}</strong><small>${esc(m.detail||'LOCAL PLAN')} · ${esc(m.state||'READY')}</small></div><span class="ops-node ${m.state==='DONE'?'done':m.state==='IN PROGRESS'?'active':approved?'approved':'waiting'}">${m.state==='DONE'?'✓':m.state==='IN PROGRESS'?'◒':approved?'✓':'○'}</span></div>`; }).join('');
-      if(active){const approved=state.approvals[active.id]===true; approval.innerHTML=`<div class="ops-approval-card"><div><span class="panel-kicker">NEXT CHECKPOINT</span><strong>${esc(active.title)}</strong><small>${approved?'Approved locally · ready for the next manual step.':'Human approval required before this checkpoint is considered cleared.'}</small></div><div class="ops-actions"><button type="button" class="ops-btn primary" data-ops-approve="${esc(active.id)}">${approved?'Approved ✓':'Approve checkpoint'}</button><button type="button" class="ops-btn" data-ops-hold="${esc(active.id)}">Hold</button><button type="button" class="ops-btn" data-ops-recover="${esc(active.id)}">Recovery note</button></div></div>`;} else approval.innerHTML='<div class="ops-empty">All queued tasks are complete. No checkpoint is awaiting approval.</div>';
+      timeline.innerHTML = list.map((m, i) => {
+        const status = m.state || 'READY', approved = state.approvals[m.id] === true;
+        const cls = status === 'DONE' ? ' is-done' : status === 'FAILED' ? ' is-failed' : '';
+        const node = status === 'DONE' ? '✓' : status === 'FAILED' ? '!' : status === 'IN PROGRESS' ? '◒' : approved ? '✓' : '○';
+        const nodeClass = status === 'DONE' ? 'done' : status === 'FAILED' ? 'failed' : status === 'IN PROGRESS' ? 'active' : approved ? 'approved' : 'waiting';
+        const error = m.error ? ' · ERROR: ' + esc(m.error) : '';
+        return `<div class="ops-step${cls}"><span class="ops-step-index">${String(i + 1).padStart(2, '0')}</span><div class="ops-step-body"><strong>${esc(m.title)}</strong><small>${esc(m.detail || 'LOCAL PLAN')} · ${esc(status)} · ${esc(timeOf(m.updatedAt || m.createdAt))}${error}</small></div><span class="ops-node ${nodeClass}">${node}</span></div>`;
+      }).join('');
+      if (active && active.state === 'FAILED') {
+        approval.innerHTML = `<div class="ops-approval-card"><div><span class="panel-kicker">RECOVERY CHECKPOINT</span><strong>${esc(active.title)}</strong><small>Failure: ${esc(active.error || 'No error details supplied.')} · ${esc(timeOf(active.failedAt || active.updatedAt))}</small><small>Recovery steps: review error → restore prerequisites → verify inputs → retry after human review.</small></div><div class="ops-actions"><button type="button" class="ops-btn primary" data-ops-recover="${esc(active.id)}">Retry task</button><button type="button" class="ops-btn" data-ops-hold="${esc(active.id)}">Keep on hold</button></div></div>`;
+      } else if (active) {
+        const approved = state.approvals[active.id] === true, started = active.state === 'IN PROGRESS';
+        const detail = approved ? 'Approved locally. No external action is executed.' : 'Human approval is required before this task can start.';
+        approval.innerHTML = `<div class="ops-approval-card"><div><span class="panel-kicker">${started ? 'ACTIVE CHECKPOINT' : 'NEXT CHECKPOINT'}</span><strong>${esc(active.title)}</strong><small>${esc(detail)}</small><small>Created: ${esc(timeOf(active.createdAt))}${active.startedAt ? ' · Started: ' + esc(timeOf(active.startedAt)) : ''}${active.completedAt ? ' · Completed: ' + esc(timeOf(active.completedAt)) : ''}</small></div><div class="ops-actions"><button type="button" class="ops-btn primary" data-ops-approve="${esc(active.id)}">${approved ? 'Approved ✓' : 'Approve checkpoint'}</button><button type="button" class="ops-btn" data-ops-hold="${esc(active.id)}">Hold</button><button type="button" class="ops-btn" data-ops-recover="${esc(active.id)}">Recovery note</button>${started ? '<button type="button" class="ops-btn" data-ops-fail="' + esc(active.id) + '">Mark failed</button>' : ''}</div></div>`;
+      } else approval.innerHTML = '<div class="ops-empty">All queued tasks are complete. No checkpoint is awaiting approval.</div>';
     }
-    audit.innerHTML=state.audit.length?state.audit.slice(0,8).map(e=>`<div class="ops-audit-row"><time>${esc(e.time)}</time><span>${esc(e.type)}</span><p>${esc(e.text)}</p></div>`).join(''):'<div class="ops-empty">Audit trail is clean. No orchestration events recorded yet.</div>';
+    audit.innerHTML = state.audit.length ? state.audit.slice(0, 8).map(e => `<div class="ops-audit-row"><time>${esc(e.time)}</time><span>${esc(e.type)}</span><p>${esc(e.text)}</p></div>`).join('') : '<div class="ops-empty">Audit trail is clean. No orchestration events recorded yet.</div>';
   }
-  deck.addEventListener('click',event=>{const approve=event.target.closest('[data-ops-approve]'),hold=event.target.closest('[data-ops-hold]'),recover=event.target.closest('[data-ops-recover]');if(approve){const id=approve.dataset.opsApprove;state.approvals[id]=true;addAudit('APPROVED','Human checkpoint approved locally. No external action was executed.',id);render();}if(hold){const id=hold.dataset.opsHold;state.approvals[id]=false;addAudit('HELD','Checkpoint held for review. No external action was executed.',id);render();}if(recover){const id=recover.dataset.opsRecover;state.recovered[id]=now();addAudit('RECOVERY','Recovery marker created. Review the mission queue before continuing.',id);render();}});
+  deck.addEventListener('click', event => {
+    const approve = event.target.closest('[data-ops-approve]'), hold = event.target.closest('[data-ops-hold]');
+    const recover = event.target.closest('[data-ops-recover]'), fail = event.target.closest('[data-ops-fail]');
+    if (approve) { const id = approve.dataset.opsApprove; state.approvals[id] = true; addAudit('APPROVED', 'Human checkpoint approved locally. No external action was executed.', id); render(); }
+    if (hold) { const id = hold.dataset.opsHold; state.approvals[id] = false; addAudit('HELD', 'Checkpoint held for review. No external action was executed.', id); render(); }
+    if (fail) {
+      const id = fail.dataset.opsFail, list = missions(), mission = list.find(m => m.id === id);
+      if (mission && mission.state === 'IN PROGRESS') {
+        mission.state = 'FAILED'; mission.failedAt = stamp(); mission.updatedAt = mission.failedAt;
+        mission.error = 'Marked failed during manual review. Review prerequisites before retrying.';
+        save(MISSION_STORAGE, list); state.approvals[id] = false; observedStates.set(id, 'FAILED');
+        addAudit('FAILED', mission.error, id); render();
+      }
+    }
+    if (recover) {
+      const id = recover.dataset.opsRecover, list = missions(), mission = list.find(m => m.id === id);
+      if (mission && mission.state === 'FAILED') {
+        mission.state = 'READY'; mission.failedAt = ''; mission.startedAt = ''; mission.completedAt = '';
+        mission.updatedAt = stamp(); mission.error = ''; save(MISSION_STORAGE, list);
+        state.approvals[id] = false; state.recovered[id] = mission.updatedAt; observedStates.set(id, 'READY');
+        addAudit('RECOVERED', 'Recovery steps reviewed; task reset to READY. Approve before retrying.', id);
+      } else {
+        state.recovered[id] = stamp();
+        addAudit('RECOVERY NOTE', 'Inspect the task, restore prerequisites, verify inputs, then retry only after human review.', id);
+      }
+      render();
+    }
+  });
   $('#opsClearAudit')?.addEventListener('click',()=>{state.audit=[];writeState();render();});
   $('#opsRefresh')?.addEventListener('click',()=>{addAudit('SYNC','Mission telemetry refreshed from browser-local queue.','');render();});
   render(); setInterval(render,1200);
