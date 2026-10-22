@@ -25,7 +25,7 @@
     pointer = document.createElement('div');
     pointer.className = 'eyenex-camera-pointer';
     pointer.setAttribute('aria-hidden', 'true');
-    document.body.appendChild(pointer);
+    (settingsDialog || document.body).appendChild(pointer);
     return pointer;
   }
   function updatePointer(x, y) {
@@ -43,9 +43,11 @@
     const target = document.elementFromPoint(pointerX, pointerY);
     if (!target) { say('Blink detected, but no confirmable control is under the pointer.'); return; }
     const button = target.closest('button:not(:disabled)');
-    if (!button || button.type === 'submit' || button.matches('.danger,#removeSavedKey,.settings-close,#closeSettings,#closeDialog') ||
+    const label = button ? [button.textContent, button.title, button.getAttribute('aria-label') || ''].join(' ') : '';
+    const destructive = /\\b(delete|remove|clear|reset|stop camera|erase)\\b/i.test(label);
+    if (!button || button.type === 'submit' || destructive || button.matches('.danger,#removeSavedKey,.settings-close,#closeSettings,#closeDialog') ||
         button.closest('.camera-control-card') || button.getAttribute('aria-hidden') === 'true') {
-      say('Blink registered. Move the pointer onto a non-destructive button to confirm.');
+      say('Blink registered. Move the pointer onto a safe, non-destructive button to confirm.');
       return;
     }
     say('Deliberate blink detected — confirming: ' + (button.textContent.trim().replace(/\s+/g, ' ').slice(0, 60) || 'button'));
