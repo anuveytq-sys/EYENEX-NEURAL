@@ -683,3 +683,151 @@ body[data-environment="lab"] .core-visual { display: none; }
   outline: 1px solid rgba(0, 234, 255, .7);
   outline-offset: 3px;
 }
+
+
+/* Project Intelligence extension — compact, opt-in, and contained in the existing Lab panel. */
+#labEnvironment .repo-intel {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid rgba(62, 206, 242, .22);
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(5, 25, 43, .72), rgba(4, 12, 26, .64));
+  min-width: 0;
+}
+#labEnvironment .repo-intel-heading,
+#labEnvironment .repo-result-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+#labEnvironment .repo-intel-heading h3 {
+  margin: 4px 0 0;
+  color: #e6f8ff;
+  font-size: clamp(11px, 1vw, 14px);
+  line-height: 1.25;
+}
+#labEnvironment .repo-signal {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(0, 224, 255, .34);
+  border-radius: 8px;
+  color: #51e7ff;
+  font-size: 16px;
+  flex: 0 0 auto;
+}
+#labEnvironment .repo-intel-copy,
+#labEnvironment .repo-result-meta,
+#labEnvironment .repo-result-note,
+#labEnvironment .repo-result-card details {
+  color: rgba(205, 227, 241, .74);
+  font-size: 10px;
+  line-height: 1.55;
+}
+#labEnvironment .repo-intel-copy { margin: 8px 0; }
+#labEnvironment .repo-scan-form { display: grid; gap: 8px; }
+#labEnvironment .repo-scan-form > label:first-child {
+  color: #79b8cc;
+  font: 9px 'DM Mono', monospace;
+  letter-spacing: .08em;
+}
+#labEnvironment .repo-scan-form input[type="url"] {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: 10px;
+  color: #e7faff;
+  background: rgba(2, 9, 19, .85);
+  border: 1px solid rgba(107, 180, 205, .3);
+  border-radius: 7px;
+  outline: none;
+  font: 10px 'DM Mono', monospace;
+}
+#labEnvironment .repo-scan-form input[type="url"]:focus {
+  border-color: rgba(44, 225, 255, .8);
+  box-shadow: 0 0 0 2px rgba(44, 225, 255, .1);
+}
+#labEnvironment .repo-ai-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  color: rgba(210, 230, 241, .78);
+  font-size: 9px;
+  line-height: 1.45;
+}
+#labEnvironment .repo-ai-consent input {
+  flex: 0 0 auto;
+  accent-color: #39dff5;
+  margin-top: 2px;
+}
+#labEnvironment .repo-scan-form .primary-button {
+  min-height: 34px;
+  font-size: 10px;
+}
+#labEnvironment .repo-scan-form .primary-button:disabled { opacity: .62; cursor: wait; }
+#labEnvironment .repo-scan-result {
+  margin-top: 9px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+#labEnvironment .repo-result-idle {
+  color: rgba(113, 172, 196, .75);
+  font: 8px 'DM Mono', monospace;
+  letter-spacing: .08em;
+}
+#labEnvironment .repo-result-card {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(73, 201, 232, .19);
+  background: rgba(2, 10, 22, .64);
+}
+#labEnvironment .repo-result-badge {
+  padding: 3px 5px;
+  border: 1px solid rgba(70, 233, 187, .28);
+  border-radius: 4px;
+  color: #72eac7;
+  font: 7px 'DM Mono', monospace;
+  white-space: nowrap;
+}
+#labEnvironment .repo-result-card h4 {
+  margin: 8px 0 4px;
+  color: #e6f9ff;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+#labEnvironment .repo-result-card .repo-result-meta { margin: 0 0 7px; }
+#labEnvironment .repo-result-stats {
+  color: #69e5f8;
+  font: 8px 'DM Mono', monospace;
+  line-height: 1.6;
+}
+#labEnvironment .repo-result-note { margin: 7px 0; }
+#labEnvironment .repo-result-card details { margin-top: 8px; }
+#labEnvironment .repo-result-card summary { cursor: pointer; color: #8adff0; }
+#labEnvironment .repo-result-card details p { margin-bottom: 0; }
+#labEnvironment .repo-result-ai {
+  margin-top: 9px;
+  padding-top: 9px;
+  border-top: 1px solid rgba(105, 188, 213, .18);
+  color: rgba(224, 239, 247, .88);
+  font-size: 10px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+#labEnvironment .repo-result-ai .panel-kicker {
+  display: block;
+  margin-bottom: 6px;
+}
+@media (max-width: 700px) {
+  #labEnvironment .repo-intel { padding: 8px; margin-top: 8px; }
+  #labEnvironment .repo-intel-copy,
+  #labEnvironment .repo-result-meta,
+  #labEnvironment .repo-result-note,
+  #labEnvironment .repo-result-card details { font-size: 8px; }
+  #labEnvironment .repo-scan-form input[type="url"] { padding: 7px; font-size: 8px; }
+  #labEnvironment .repo-ai-consent { font-size: 7px; }
+  #labEnvironment .repo-scan-form .primary-button { font-size: 8px; min-height: 28px; }
+}
