@@ -57,6 +57,7 @@
       uniform float u_time;
       uniform vec2 u_rotation;
       uniform float u_hover;
+      uniform float u_zoom;
       float hash(vec3 p) {
         p = fract(p * 0.3183099 + vec3(.1,.2,.3));
         p *= 17.0;
@@ -81,7 +82,7 @@
         vec2 uv=(v_uv-.5)*2.0;
         uv.x *= u_resolution.x/u_resolution.y;
         vec3 ro=vec3(0.0,0.0,2.75);
-        vec3 rd=normalize(vec3(uv*1.12,-1.9));
+        vec3 rd=normalize(vec3(uv*(1.12/u_zoom),-1.9));
         float b=dot(ro,rd), c=dot(ro,ro)-.69*.69;
         float disc=b*b-c;
         vec3 color=vec3(0.0);
@@ -140,14 +141,29 @@
     const pos=gl.getAttribLocation(program,'a_position'); gl.enableVertexAttribArray(pos); gl.vertexAttribPointer(pos,2,gl.FLOAT,false,0,0);
     const resLoc=gl.getUniformLocation(program,'u_resolution'), timeLoc=gl.getUniformLocation(program,'u_time');
     const rotLoc=gl.getUniformLocation(program,'u_rotation'), hoverLoc=gl.getUniformLocation(program,'u_hover');
-    let rotXValue=.25, rotYValue=.15, hover=0, dragging=false, lastX=0, lastY=0, lastTime=0;
+    const zoomLoc=gl.getUniformLocation(program,'u_zoom');
+    let rotXValue=.25, rotYValue=.15, hover=0, dragging=false, lastX=0, lastY=0;
+    let zoom=1.0, targetZoom=1.0;
     canvas.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture?.(e.pointerId);});
     canvas.addEventListener('pointermove',e=>{
       if(dragging){rotXValue+=(e.clientX-lastX)*.008;rotYValue=Math.max(-1.35,Math.min(1.35,rotYValue+(e.clientY-lastY)*.008));lastX=e.clientX;lastY=e.clientY;}
       else {const r=canvas.getBoundingClientRect();hover=Math.max(0,1-Math.hypot((e.clientX-r.left)/r.width-.5,(e.clientY-r.top)/r.height-.5)*1.8);}
     });
     const stopDrag=()=>{dragging=false;}; canvas.addEventListener('pointerup',stopDrag); canvas.addEventListener('pointercancel',stopDrag); canvas.addEventListener('pointerleave',()=>{if(!dragging)hover=0;});
-    canvas.addEventListener('keydown',e=>{if(e.key==='ArrowLeft')rotXValue-=.15;if(e.key==='ArrowRight')rotXValue+=.15;if(e.key==='ArrowUp')rotYValue-=.15;if(e.key==='ArrowDown')rotYValue+=.15;});
+    canvas.addEventListener('wheel',e=>{
+      e.preventDefault();
+      targetZoom=Math.max(.78,Math.min(1.65,targetZoom*(e.deltaY<0?1.08:.925)));
+    },{passive:false});
+    canvas.addEventListener('keydown',e=>{
+      if(e.key==='ArrowLeft')rotXValue-=.15;
+      if(e.key==='ArrowRight')rotXValue+=.15;
+      if(e.key==='ArrowUp')rotYValue=Math.max(-1.35,Math.min(1.35,rotYValue-.15));
+      if(e.key==='ArrowDown')rotYValue=Math.max(-1.35,Math.min(1.35,rotYValue+.15));
+      if(e.key==='+'||e.key==='=')targetZoom=Math.min(1.65,targetZoom*1.08);
+      if(e.key==='-'||e.key==='_')targetZoom=Math.max(.78,targetZoom*.925);
+      if(e.key==='0')targetZoom=1.0;
+    });
+    canvas.setAttribute('aria-label','Interactive 3D neural core. Drag to rotate, scroll to zoom, or use arrow keys and plus/minus.');
     canvas.tabIndex=0;
     function resize(){
       const rect=canvas.getBoundingClientRect(), dpr=Math.min(window.devicePixelRatio||1,2);
@@ -159,7 +175,8 @@
       if(!dragging) rotXValue+=.0007;
       gl.clearColor(0,0,0,0); gl.clear(gl.COLOR_BUFFER_BIT);
       gl.uniform2f(resLoc,canvas.width,canvas.height); gl.uniform1f(timeLoc,t);
-      gl.uniform2f(rotLoc,rotXValue,rotYValue); gl.uniform1f(hoverLoc,hover);
+      zoom += (targetZoom-zoom)*.14;
+      gl.uniform2f(rotLoc,rotXValue,rotYValue); gl.uniform1f(hoverLoc,hover); gl.uniform1f(zoomLoc,zoom);
       gl.drawArrays(gl.TRIANGLES,0,6);
       requestAnimationFrame(draw);
     }
