@@ -1,0 +1,50 @@
+/* Independent panel scrolling: keep the workspace compact without hiding content. */
+.panel{min-width:0;max-height:min(68vh,520px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(112,232,242,.28) rgba(255,255,255,.025)}
+.panel::-webkit-scrollbar,.conversation::-webkit-scrollbar,.mission-items::-webkit-scrollbar,.analysis-result::-webkit-scrollbar{width:6px;height:6px}
+.panel::-webkit-scrollbar-track,.conversation::-webkit-scrollbar-track,.mission-items::-webkit-scrollbar-track,.analysis-result::-webkit-scrollbar-track{background:rgba(255,255,255,.025);border-radius:8px}
+.panel::-webkit-scrollbar-thumb,.conversation::-webkit-scrollbar-thumb,.mission-items::-webkit-scrollbar-thumb,.analysis-result::-webkit-scrollbar-thumb{background:rgba(112,232,242,.25);border-radius:8px}
+.panel-heading{position:sticky;top:0;z-index:2;background:rgba(13,22,34,.96);backdrop-filter:blur(12px)}
+.command-panel{max-height:min(72vh,560px);overflow:hidden;min-height:0}
+.command-panel .conversation{min-height:0;max-height:clamp(120px,32vh,280px);overflow-y:auto;overscroll-behavior:contain}
+.command-panel .command-composer{flex-shrink:0}
+.side-stack,.lab-side{min-width:0;align-self:start}
+.mission-panel{max-height:min(42vh,340px)}
+.system-panel{max-height:min(36vh,300px)}
+.mission-items{max-height:210px;overflow-y:auto;overscroll-behavior:contain}
+.mission-item{gap:8px}
+.mission-item .mission-title-button{min-width:0;flex:1;text-align:left;background:transparent;border:0;padding:0;cursor:pointer}
+.mission-item .mission-title-button:focus-visible{outline:2px solid var(--cyan);outline-offset:3px;border-radius:3px}
+.mission-item .mission-title-button strong{overflow-wrap:anywhere}
+.mission-item.is-done strong{text-decoration:line-through;color:#718a9c}
+.mission-item.is-done .mission-state{color:var(--mint)}
+.mission-remove{border:1px solid var(--line);background:transparent;color:#7f96a8;border-radius:5px;width:25px;height:25px;flex:0 0 25px;cursor:pointer}
+.mission-remove:hover{border-color:rgba(255,130,130,.45);color:#ffaaaa}
+.mission-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 20px 12px}
+.mission-toolbar small{font:8px var(--mono);color:#6f879b}
+.mission-clear{font-size:9px;color:#9bb0c1;border:1px solid var(--line);background:transparent;border-radius:5px;padding:6px 8px;cursor:pointer}
+.mission-clear:hover{border-color:var(--line-strong);color:var(--cyan)}
+.analysis-panel{max-height:min(74vh,680px);overflow-y:auto}
+.analysis-result{max-height:clamp(150px,35vh,300px);overflow-y:auto;overscroll-behavior:contain}
+.insight-panel{max-height:min(46vh,370px)}
+.boundary-panel{max-height:min(38vh,310px)}
+.status-list{overflow-y:auto;max-height:190px}
+.trust-list{overflow-wrap:anywhere}
+.environment{min-width:0}
+.core-grid,.lab-grid,.hero-row{min-width:0}
+@media(max-width:760px){
+ .panel{max-height:58vh}
+ .command-panel{max-height:62vh}
+ .command-panel .conversation{max-height:25vh}
+ .mission-panel,.system-panel,.insight-panel,.boundary-panel{max-height:38vh}
+ .analysis-panel{max-height:65vh}
+ .mission-items{max-height:180px}
+ .panel-heading{padding:15px}
+ .mission-toolbar{padding-left:15px;padding-right:15px}
+}
+@media(max-width:520px){
+ .panel{max-height:55vh}
+ .command-panel{max-height:60vh}
+ .command-panel .conversation{max-height:23vh}
+ .mission-panel,.system-panel,.insight-panel,.boundary-panel{max-height:42vh}
+ .analysis-panel{max-height:62vh}
+}
