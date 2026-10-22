@@ -631,3 +631,15 @@ body[data-environment="lab"] .core-visual { display: none; }
   #labEnvironment .analysis-options label { font-size: 5px; }
   #labEnvironment .trust-list li { font-size: 5px; }
 }
+
+
+/* Neural Core: headings belong to the scrolling content, not a sticky overlay. */
+#coreEnvironment .mission-panel > .panel-heading,
+#coreEnvironment .system-panel > .panel-heading {
+  position: static !important;
+  top: auto !important;
+  z-index: auto !important;
+  background: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
