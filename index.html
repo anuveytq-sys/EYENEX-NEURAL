@@ -16,6 +16,15 @@
   <link rel="stylesheet" href="./assets/css/hud-layout.css?v=20261023-5" />
   <link rel="stylesheet" href="./assets/css/multimodal.css" />
   <link rel="stylesheet" href="./assets/css/hud-atmosphere.css?v=20261023-2" />
+
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/app.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icons/app.svg">
+  <meta name="theme-color" content="#070b13">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="EYENEX">
 </head>
 <body>
   <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
@@ -103,5 +112,11 @@
   <script src="./assets/js/hud-atmosphere.js?v=20261023-2"></script>
   <script src="./assets/js/mission-intelligence.js?v=20261023-2"></script>
   <script src="./assets/js/neural-command-suite.js?v=20261023-4"></script>
+
+<script>
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(err => console.warn('App shell registration unavailable:', err)));
+}
+</script>
 </body>
 </html>
