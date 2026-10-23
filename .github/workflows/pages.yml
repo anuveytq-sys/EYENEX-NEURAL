@@ -46,7 +46,7 @@ jobs:
 
       - name: Prepare Pages artifact
         run: |
-          sed -i 's#</body>#  <script src="./assets/js/project-intelligence.js"></script>\\n  <script src="./assets/js/mission-vault.js"></script>\\n</body>#' index.html
+          sed -i 's#</body>#  <script src="./assets/js/project-intelligence.js"></script>\n  <script src="./assets/js/mission-vault.js"></script>\n</body>#' index.html
           grep -q 'assets/js/project-intelligence.js' index.html
           grep -q 'assets/js/mission-vault.js' index.html
           echo "Project intelligence and mission vault modules injected into the published HTML artifact."
