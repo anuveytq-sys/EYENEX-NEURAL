@@ -159,6 +159,49 @@
     if(!list.length) return 'LOCAL OPERATIONS MEMORY\nNo notes saved. Use /memory add <note> to store a local note.';
     return ['LOCAL OPERATIONS MEMORY / '+list.length+' NOTES',...list.slice(-12).map((n,i)=>(i+1)+'. '+n.text+' ('+(n.createdAt?new Date(n.createdAt).toLocaleDateString():'date unknown')+')'),'Showing the latest '+Math.min(12,list.length)+' notes.'].join('\n');
   }
+  function readinessReport() {
+    const list = queue();
+    if (!list.length) return 'MISSION READINESS\nNo missions are queued. Add a task first; readiness is a local checklist estimate, not an execution guarantee.';
+    const rows = list.map(m => {
+      let score = 100, checks = [];
+      const title = String(m.title || '').trim();
+      const detail = String(m.detail || '').trim();
+      if (title.length < 8) { score -= 15; checks.push('clarify the task title'); }
+      if (!detail || detail.length < 18) { score -= 20; checks.push('add acceptance criteria / useful detail'); }
+      if (m.state === 'FAILED') { score -= 35; checks.push('resolve the recorded failure before retrying'); }
+      if (m.state === 'IN PROGRESS') { score -= 10; checks.push('verify the current checkpoint outcome'); }
+      if (/deploy|publish|release|production/i.test(title+' '+detail) && !/test|verify|rollback|backup/i.test(title+' '+detail)) {
+        score -= 15; checks.push('add a test, verification, and rollback checkpoint');
+      }
+      if (!checks.length) checks.push('ready for human review; confirm prerequisites and scope');
+      return {m, score:Math.max(0,score), checks};
+    }).sort((a,b)=>a.score-b.score);
+    const average = Math.round(rows.reduce((s,r)=>s+r.score,0)/rows.length);
+    return ['MISSION READINESS / LOCAL CHECKLIST SCORE',
+      'Overall readiness estimate: '+average+'/100 across '+rows.length+' mission(s).',
+      ...rows.slice(0,12).map((r,i)=>(i+1)+'. ['+r.score+'/100] '+r.m.title+' — '+(r.m.state||'READY')+'\n   Next: '+r.checks.join('; ')),
+      'Scores are transparent heuristics from saved browser records, not proof that work is safe or executable.'].join('\n');
+  }
+  function dependencyReport() {
+    const list = queue();
+    if (!list.length) return 'DEPENDENCY MAP\nNo missions are queued. Add missions to see suggested prerequisites.';
+    const rules = [
+      {re:/deploy|publish|release|production/i, needs:/test|verify|build|backup|rollback|review/i, label:'validation / build / recovery checkpoint'},
+      {re:/fix|bug|error|crash|broken/i, needs:/repro|diagnos|investigat|inspect|log/i, label:'reproduction / diagnosis checkpoint'},
+      {re:/security|auth|token|permission|privacy/i, needs:/audit|review|threat|permission|credential/i, label:'security / access review'},
+      {re:/upload|import|migration|restore/i, needs:/backup|snapshot|export|validate|test/i, label:'backup / validation checkpoint'}
+    ];
+    const rows = list.map(m => {
+      const text = (m.title+' '+(m.detail||'')).toLowerCase();
+      const rule = rules.find(r=>r.re.test(text));
+      if (!rule) return {m, need:'No dependency inferred; manually confirm prerequisites.'};
+      const existing = list.find(other=>other!==m && rule.needs.test((other.title+' '+(other.detail||''))+'') && other.state!=='DONE');
+      return {m, need:existing?'Suggested prerequisite: '+existing.title+' ('+(existing.state||'READY')+')':'Suggested prerequisite: '+rule.label+' — no matching mission found'};
+    });
+    return ['DEPENDENCY INTELLIGENCE / SUGGESTED LINKS',
+      ...rows.slice(0,14).map((r,i)=>(i+1)+'. '+r.m.title+'\n   '+r.need),
+      'Dependencies are keyword-based suggestions only. No tasks were reordered, blocked, or executed. Review the links before acting.'].join('\n');
+  }
   const help = [
     'ADVANCED COMMAND SUITE',
     '/suite — list available command modules',
@@ -171,6 +214,8 @@
     '/export — download a local operations JSON report',
     '/memory — show notes · /memory add <note> · /memory clear',
     '/review — combined mission, risk, and focus review',
+    '/readiness — score mission clarity and verification readiness',
+    '/dependencies — suggest mission prerequisites from local task text',
     '',
     'Also available: /telemetry, /diagnose, /mission-intel, /focus, /core pulse, /core normal, /help.',
     'Boundary: local heuristics and browser data only; no external task is executed.'
@@ -189,6 +234,8 @@
     if(name==='/export') return exportReport();
     if(name==='/memory') return memoryCommand(arg);
     if(name==='/review') return briefing()+'\n\n'+riskReport();
+    if(name==='/readiness') return readinessReport();
+    if(name==='/dependencies'||name==='/deps') return dependencyReport();
     return null;
   }
   const suiteChip = $('#advancedSuiteChip');
