@@ -69,12 +69,12 @@
     .hud-starter-panel .prompt-chip span{font-size:7px!important;}
 
     /* Mission orchestration belongs to Neural Core; keep the Intelligence Lab workspace clear. */
-    body[data-environment="lab"] .hud-orchestration-panel{display:none!important;}
+    /* The same mission intelligence panel remains available in both environments. */
     body[data-environment="lab"] .hud-starter-panel{left:auto;right:16px;top:calc(8% + 42% + 10px);bottom:auto;width:clamp(112px,10vw,132px);max-height:52px;}
 
     .hud-orchestration-panel{
-      position:absolute!important;z-index:10;left:auto!important;right:16px!important;top:auto!important;bottom:184px!important;
-      width:clamp(105px,9vw,124px)!important;height:clamp(132px,16vh,146px)!important;max-height:146px!important;min-height:0!important;
+      position:absolute!important;z-index:10;left:auto!important;right:16px!important;top:auto!important;bottom:100px!important;
+      width:clamp(180px,15vw,220px)!important;height:clamp(185px,25vh,205px)!important;max-height:205px!important;min-height:0!important;
       margin:0!important;box-sizing:border-box;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain;touch-action:pan-y;
       scrollbar-width:thin;scrollbar-color:rgba(0,220,255,.38) rgba(0,0,0,.15);
       padding:9px!important;border:1px solid rgba(0,220,255,.25);border-radius:4px;
@@ -84,6 +84,10 @@
     .hud-orchestration-panel::-webkit-scrollbar{width:5px}
     .hud-orchestration-panel::-webkit-scrollbar-thumb{background:rgba(0,220,255,.35);border-radius:8px}
     .hud-orchestration-panel .ops-grid{grid-template-columns:1fr!important;gap:4px!important}
+    .hud-orchestration-panel, .hud-orchestration-panel *{writing-mode:horizontal-tb!important;text-orientation:mixed!important;overflow-wrap:anywhere;}
+    .hud-orchestration-panel .ops-head{align-items:flex-start;flex-wrap:wrap;}
+    .hud-orchestration-panel .ops-head-right{white-space:normal!important;flex-wrap:wrap;}
+    .hud-orchestration-panel .ops-card-title{white-space:normal!important;overflow-wrap:anywhere;}
     .hud-orchestration-panel .ops-card-title{font-size:6px!important}
     .hud-orchestration-panel .ops-step{grid-template-columns:16px minmax(0,1fr) 14px;gap:4px;padding:4px}
     .hud-orchestration-panel .ops-step-index{font-size:6px}
@@ -110,9 +114,10 @@
       .hud-command-panel .command-composer{margin:3px 5px 5px!important;padding:6px 7px!important}
       .hud-command-panel .command-composer textarea{font-size:8px!important;min-height:20px!important;max-height:28px!important}
       .hud-command-panel .send-button{font-size:7px!important;padding:5px 7px!important}
-      .hud-orchestration-panel{right:4px!important;bottom:178px!important;width:clamp(108px,29vw,128px)!important;height:clamp(118px,15vh,136px)!important;max-height:136px!important;padding:6px!important}
+      .hud-orchestration-panel{right:4px!important;bottom:85px!important;width:clamp(120px,34vw,150px)!important;height:clamp(145px,20vh,165px)!important;max-height:165px!important;padding:6px!important}
       .hud-starter-panel{left:4px!important;top:calc(3vh + 25vh + 6px)!important;bottom:auto!important;width:clamp(112px,34vw,148px)!important;max-height:58px!important;padding:4px!important}
       body[data-environment="lab"] .hud-starter-panel{left:auto!important;right:4px!important;top:calc(7% + 42% + 8px)!important;bottom:auto!important;width:clamp(108px,29vw,128px)!important;max-height:48px!important}
+      body[data-environment="lab"] .hud-orchestration-panel{bottom:80px!important;height:120px!important;max-height:120px!important;width:clamp(120px,34vw,150px)!important}
       .hud-starter-panel .prompt-chip{font-size:6px!important;padding:3px 4px!important;min-height:20px!important}
       .hud-orchestration-panel .ops-head h3{font-size:8px!important}
       .hud-orchestration-panel .ops-head-right{font-size:5px!important;gap:3px}
