@@ -39,8 +39,16 @@ jobs:
           test -f assets/js/eyenex.js
           test -f assets/css/multimodal.css
           test -f assets/js/multimodal.js
+          test -f assets/js/project-intelligence.js
           node --check assets/js/multimodal.js
-          echo "EYENEX NEURAL static files and multimodal JavaScript syntax are valid."
+          node --check assets/js/project-intelligence.js
+          echo "EYENEX NEURAL static files and JavaScript syntax are valid."
+
+      - name: Prepare Pages artifact
+        run: |
+          sed -i 's#</body>#  <script src="./assets/js/project-intelligence.js"></script>\n</body>#' index.html
+          grep -q 'assets/js/project-intelligence.js' index.html
+          echo "Project intelligence module injected into the published HTML artifact."
 
       - name: Upload website artifact
         uses: actions/upload-pages-artifact@v3
