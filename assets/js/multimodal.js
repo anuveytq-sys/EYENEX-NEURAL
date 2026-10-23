@@ -52,11 +52,20 @@
     }
     const label = [control.textContent || '', control.getAttribute('aria-label') || '', control.getAttribute('title') || '', control.id || ''].join(' ').trim();
     const destructive = /\\b(delete|erase|wipe|factory reset)\\b/i.test(label);
-    // Never submit forms or activate clearly destructive controls accidentally.
-    // Settings close and ordinary camera controls are intentionally allowed.
-    if (control.matches('button[type="submit"],input[type="submit"],.danger,#removeSavedKey') || destructive) {
+    // Keep the deliberate-touch safety gate for all submit controls except the
+    // non-destructive command composer button, which is specifically requested
+    // to support blink confirmation when a command has been entered.
+    const isCommandSend = control.matches('#commandForm .send-button[type="submit"]');
+    if ((control.matches('button[type="submit"],input[type="submit"],.danger,#removeSavedKey') && !isCommandSend) || destructive) {
       say('Gesture detected, but this control requires a deliberate touch/click.');
       return;
+    }
+    if (isCommandSend) {
+      const commandInput = document.querySelector('#commandInput');
+      if (!commandInput || !commandInput.value.trim()) {
+        say('Send command is ready. Enter a command first, then blink while the pointer is over Send command.');
+        return;
+      }
     }
     try {
       control.focus({ preventScroll: true });
