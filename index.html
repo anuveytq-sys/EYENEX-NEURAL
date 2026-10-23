@@ -53,7 +53,7 @@
       <section class="panel command-panel">
         <div class="panel-heading"><div><span class="panel-kicker">01 / INPUT</span><h2>Command interface</h2></div><span class="panel-icon">↳</span></div>
         <div class="conversation" id="conversation" aria-live="polite"><div class="message system-message"><span class="message-mark">E</span><div><small>EYENEX NEURAL <time>READY</time></small><p>Neural Core initialized. Describe a goal, ask a question, or request a plan. Plans created in this build are local templates—not live AI responses.</p></div></div><div class="starter-prompts"><button class="prompt-chip">Plan a complex task <span>↗</span></button><button class="prompt-chip">Explain an idea <span>↗</span></button><button class="prompt-chip">Review a project <span>↗</span></button></div></div>
-        <form class="command-composer" id="commandForm"><label class="sr-only" for="commandInput">Enter a command</label><textarea id="commandInput" rows="1" placeholder="Tell NEURAL what you want to accomplish…" required></textarea><div class="composer-footer"><span><i class="composer-dot"></i> <span id="aiModeLabel">LOCAL PLANNER</span> <span class="composer-muted" id="aiModeHint">· live AI not connected</span></span><button class="send-button" type="submit">Send command <b>↗</b></button></div></form>
+        <form class="command-composer" id="commandForm"><label class="sr-only" for="commandInput">Enter a command</label><textarea id="commandInput" rows="1" placeholder="Ask NEURAL or type /suite for advanced operations…" required></textarea><div class="composer-footer"><span><i class="composer-dot"></i> <span id="aiModeLabel">LOCAL PLANNER</span> <span class="composer-muted" id="aiModeHint">· live AI not connected</span></span><button class="send-button" type="submit">Send command <b>↗</b></button></div></form>
         <section class="orchestration-deck" id="orchestrationDeck" aria-labelledby="orchestrationTitle">
           <div class="ops-head"><div><span class="panel-kicker">02 / ORCHESTRATION</span><h3 id="orchestrationTitle">Mission control</h3></div><div class="ops-head-right"><span id="opsProgress">NO ACTIVE MISSION</span><span class="ops-pulse" id="opsPulse">STANDBY</span></div></div>
           <div class="ops-grid">
@@ -102,5 +102,6 @@
   <script src="./assets/js/mission-vault.js?v=20261023-2"></script>
   <script src="./assets/js/hud-atmosphere.js?v=20261023-2"></script>
   <script src="./assets/js/mission-intelligence.js?v=20261023-2"></script>
+  <script src="./assets/js/neural-command-suite.js?v=20261023-3"></script>
 </body>
 </html>
