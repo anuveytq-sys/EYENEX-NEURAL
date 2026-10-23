@@ -244,7 +244,7 @@
     input.focus();
     input.dispatchEvent(new Event('input', { bubbles: true }));
   });
-  const supported=/^\/(suite|commands-plus|brief|risk|timeline|perf|simulate|playbook|snapshot|export|memory|review)(?:\s|$)/i;
+  const supported=/^\/(suite|commands-plus|brief|risk|timeline|perf|simulate|playbook|snapshot|export|memory|review|readiness|dependencies|deps)(?:\s|$)/i;
   form.addEventListener('submit', event => {
     const raw=(input.value||'').trim();
     if(!supported.test(raw)) return;
