@@ -831,3 +831,22 @@ body[data-environment="lab"] .core-visual { display: none; }
   #labEnvironment .repo-ai-consent { font-size: 7px; }
   #labEnvironment .repo-scan-form .primary-button { font-size: 8px; min-height: 28px; }
 }
+
+
+/* EYENEX command response visibility fix — modest height increase, with equal workspace clearance.
+   Applies in Neural Core and Intelligence Lab because the command panel is shared. */
+.command-panel {
+  height: 184px !important;
+  max-height: 184px !important;
+}
+.environment { bottom: 210px; }
+@media (max-width: 760px) {
+  .command-panel {
+    height: 180px !important;
+    max-height: 180px !important;
+  }
+  .environment { bottom: 196px; }
+}
+@media (max-width: 390px) {
+  .environment { bottom: 192px; }
+}
