@@ -29,6 +29,14 @@
     document.body.dataset.environment = isCore ? 'core' : 'lab';
   }
   document.body.dataset.environment = 'core';
+
+  // This native button uses the same environment switch as command-driven navigation.
+  // The tracking layer can activate it through its normal element-at-pointer click path.
+  const labSwitchButton = $('#openIntelligenceLab');
+  if (labSwitchButton) labSwitchButton.addEventListener('click', () => {
+    setEnvironment('lab');
+    notify('Intelligence Lab opened.');
+  });
   
   // Interactive 3D neural core: WebGL ray-sphere shading, animated energy filaments,
   // responsive rendering, and pointer/touch rotation. Falls back to the CSS orb if WebGL is unavailable.
