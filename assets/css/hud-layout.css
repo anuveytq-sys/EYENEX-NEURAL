@@ -926,3 +926,67 @@ body[data-environment="lab"] .core-visual { display: none; }
     min-height: 21px;
   }
 }
+
+
+/* Mission Queue readability: prevent narrow HUD layout from turning labels vertical. */
+#coreEnvironment .mission-panel,
+#labEnvironment .mission-panel,
+#coreEnvironment .mission-panel *,
+#labEnvironment .mission-panel * {
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+}
+#coreEnvironment .mission-panel .panel-heading,
+#labEnvironment .mission-panel .panel-heading {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 7px !important;
+}
+#coreEnvironment .mission-panel .panel-heading > div,
+#labEnvironment .mission-panel .panel-heading > div {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+#coreEnvironment .mission-panel .panel-heading h2,
+#labEnvironment .mission-panel .panel-heading h2,
+#coreEnvironment .mission-panel .panel-kicker,
+#labEnvironment .mission-panel .panel-kicker {
+  writing-mode: horizontal-tb !important;
+  white-space: normal !important;
+  word-break: normal !important;
+  overflow-wrap: anywhere;
+  transform: none !important;
+}
+.environment-switch-button {
+  position: absolute;
+  z-index: 16;
+  top: 8px;
+  right: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  max-width: calc(100% - 24px);
+  padding: 6px 9px !important;
+  min-height: 26px;
+  border: 1px solid rgba(0,220,255,.38);
+  border-radius: 4px;
+  background: rgba(0,30,54,.9);
+  color: #bff8ff;
+  font: 8px/1.2 'DM Mono', monospace !important;
+  letter-spacing: .04em;
+  cursor: pointer;
+  box-shadow: 0 0 14px rgba(0,180,255,.08);
+  touch-action: manipulation;
+}
+.environment-switch-button:hover,
+.environment-switch-button:focus-visible {
+  background: rgba(0,90,125,.45);
+  border-color: rgba(0,234,255,.8);
+}
+.environment-switch-button span { color: #00eaff; font-size: 12px; }
+@media (max-width: 760px) {
+  .environment-switch-button { top: 4px; right: 4px; padding: 5px 7px !important; min-height: 23px; font-size: 7px !important; }
+}
