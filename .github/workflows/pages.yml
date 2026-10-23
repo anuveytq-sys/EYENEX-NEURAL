@@ -51,15 +51,19 @@ jobs:
 
       - name: Prepare Pages artifact
         run: |
-          sed -i 's#</head>#  <link rel="stylesheet" href="./assets/css/hud-atmosphere.css" />\n</head>#' index.html
-          sed -i 's#</body>#  <script src="./assets/js/project-intelligence.js"></script>\n  <script src="./assets/js/mission-vault.js"></script>\n  <script src="./assets/js/hud-atmosphere.js"></script>\n  <script src="./assets/js/mission-intelligence.js"></script>\n</body>#' index.html
+          if ! grep -q 'assets/css/hud-atmosphere.css' index.html; then
+            sed -i 's#</head>#  <link rel="stylesheet" href="./assets/css/hud-atmosphere.css" />\\n</head>#' index.html
+          fi
+          if ! grep -q 'assets/js/mission-intelligence.js' index.html; then
+            sed -i 's#</body>#  <script src="./assets/js/project-intelligence.js"></script>\\n  <script src="./assets/js/mission-vault.js"></script>\\n  <script src="./assets/js/hud-atmosphere.js"></script>\\n  <script src="./assets/js/mission-intelligence.js"></script>\\n</body>#' index.html
+          fi
           grep -q 'assets/css/hud-atmosphere.css' index.html
           grep -q 'assets/js/project-intelligence.js' index.html
           grep -q 'assets/js/mission-vault.js' index.html
           grep -q 'assets/js/hud-atmosphere.js' index.html
           grep -q 'assets/js/mission-intelligence.js' index.html
-          echo "Project intelligence, mission vault, atmosphere, and mission intelligence modules injected into the published HTML artifact."
-
+          echo "Verified feature modules are referenced in the Pages artifact."
+          
       - name: Upload website artifact
         uses: actions/upload-pages-artifact@v3
         with:
