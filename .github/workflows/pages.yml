@@ -42,20 +42,23 @@ jobs:
           test -f assets/js/project-intelligence.js
           test -f assets/css/hud-atmosphere.css
           test -f assets/js/hud-atmosphere.js
+          test -f assets/js/mission-intelligence.js
           node --check assets/js/multimodal.js
           node --check assets/js/project-intelligence.js
           node --check assets/js/hud-atmosphere.js
+          node --check assets/js/mission-intelligence.js
           echo "EYENEX NEURAL static files and JavaScript syntax are valid."
 
       - name: Prepare Pages artifact
         run: |
           sed -i 's#</head>#  <link rel="stylesheet" href="./assets/css/hud-atmosphere.css" />\n</head>#' index.html
-          sed -i 's#</body>#  <script src="./assets/js/project-intelligence.js"></script>\n  <script src="./assets/js/mission-vault.js"></script>\n  <script src="./assets/js/hud-atmosphere.js"></script>\n</body>#' index.html
+          sed -i 's#</body>#  <script src="./assets/js/project-intelligence.js"></script>\n  <script src="./assets/js/mission-vault.js"></script>\n  <script src="./assets/js/hud-atmosphere.js"></script>\n  <script src="./assets/js/mission-intelligence.js"></script>\n</body>#' index.html
           grep -q 'assets/css/hud-atmosphere.css' index.html
           grep -q 'assets/js/project-intelligence.js' index.html
           grep -q 'assets/js/mission-vault.js' index.html
           grep -q 'assets/js/hud-atmosphere.js' index.html
-          echo "Project intelligence, mission vault, and cinematic atmosphere modules injected into the published HTML artifact."
+          grep -q 'assets/js/mission-intelligence.js' index.html
+          echo "Project intelligence, mission vault, atmosphere, and mission intelligence modules injected into the published HTML artifact."
 
       - name: Upload website artifact
         uses: actions/upload-pages-artifact@v3
