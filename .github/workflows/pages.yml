@@ -49,6 +49,8 @@ jobs:
           node --check assets/js/project-intelligence.js
           node --check assets/js/hud-atmosphere.js
           node --check assets/js/mission-intelligence.js
+          test -f assets/js/neural-command-suite.js
+          node --check assets/js/neural-command-suite.js
           echo "EYENEX NEURAL static files and JavaScript syntax are valid."
 
       - name: Verify published feature references
@@ -58,6 +60,7 @@ jobs:
           grep -q 'assets/js/mission-vault.js' index.html
           grep -q 'assets/js/hud-atmosphere.js' index.html
           grep -q 'assets/js/mission-intelligence.js' index.html
+          grep -q 'assets/js/neural-command-suite.js' index.html
           echo "All EYENEX feature modules are directly referenced by index.html."
           
       - name: Upload website artifact
