@@ -37,6 +37,8 @@ The settings panel also supports showing/hiding the currently typed key and remo
 ## Current working features
 
 - Responsive dark interface with a CSS 3D-inspired neural core visualization.
+- **Cinematic HUD Atmosphere:** animated depth-layered starfield, subtle connected intelligence mesh, perspective telemetry grid, volumetric nebula lighting, edge vignette, and pointer-responsive parallax. This is a decorative background layer only: it does not resize, reposition, or intercept interaction with any panel.
+- Atmosphere is lightweight canvas/CSS, uses no external image assets or network calls, pauses while the page is hidden, caps pixel ratio/particle count, and respects reduced-motion preferences.
 - Exactly two environment views with shared navigation.
 - Scrollable Settings drawer with close button, API-key field, model ID field, Test API key, Save locally, show/hide key, and remove saved key controls.
 - OpenRouter chat completions for Neural Core and AI-assisted analysis in Intelligence Lab.
@@ -80,7 +82,8 @@ This is a static frontend prototype and does not need a build step.
 5. **Task orchestration:** reliable local execution timeline, human approval checkpoint, recovery state, and audit trail are implemented. Consequential external actions remain intentionally gated.
 6. **Multimodal controls:** optional camera-based head-pointer and eye-gaze tracking with center calibration, smoothing, pause/resume, persistent tracking across Settings close, and opt-in blink confirmation. *(Implemented as an opt-in browser feature; real-device testing is required.)*
 7. **Mission continuity:** Mission Vault adds local search/status filters, portable JSON backups, import/merge, automatic snapshots before destructive queue changes, and user-confirmed recovery. Existing queue and tracking code paths remain separate.
-8. **Publishing:** GitHub Pages hosts the static frontend. The Pages workflow validates the source-intelligence and Mission Vault modules, then injects them into the published artifact without editing the source HUD layout.
+8. **Cinematic HUD atmosphere:** a responsive animated depth field, parallax star points, perspective grid, and ambient lighting layer. It is layered behind the current interface to preserve existing panel geometry and controls.
+9. **Publishing:** GitHub Pages hosts the static frontend. The Pages workflow validates the source-intelligence, Mission Vault, and atmosphere modules, then injects them into the published artifact without editing the source HUD layout.
 
 ## Architecture direction
 
