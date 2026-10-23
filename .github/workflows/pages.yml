@@ -11,9 +11,6 @@ permissions:
   pages: write
   id-token: write
 
-concurrency:
-  group: github-pages
-  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -49,20 +46,14 @@ jobs:
           node --check assets/js/mission-intelligence.js
           echo "EYENEX NEURAL static files and JavaScript syntax are valid."
 
-      - name: Prepare Pages artifact
+      - name: Verify published feature references
         run: |
-          if ! grep -q 'assets/css/hud-atmosphere.css' index.html; then
-            sed -i 's#</head>#  <link rel="stylesheet" href="./assets/css/hud-atmosphere.css" />\\n</head>#' index.html
-          fi
-          if ! grep -q 'assets/js/mission-intelligence.js' index.html; then
-            sed -i 's#</body>#  <script src="./assets/js/project-intelligence.js"></script>\\n  <script src="./assets/js/mission-vault.js"></script>\\n  <script src="./assets/js/hud-atmosphere.js"></script>\\n  <script src="./assets/js/mission-intelligence.js"></script>\\n</body>#' index.html
-          fi
           grep -q 'assets/css/hud-atmosphere.css' index.html
           grep -q 'assets/js/project-intelligence.js' index.html
           grep -q 'assets/js/mission-vault.js' index.html
           grep -q 'assets/js/hud-atmosphere.js' index.html
           grep -q 'assets/js/mission-intelligence.js' index.html
-          echo "Verified feature modules are referenced in the Pages artifact."
+          echo "All EYENEX feature modules are directly referenced by index.html."
           
       - name: Upload website artifact
         uses: actions/upload-pages-artifact@v3
