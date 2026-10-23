@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="./assets/css/panel-scroll.css" />
   <link rel="stylesheet" href="./assets/css/settings.css" />
   <link rel="stylesheet" href="./assets/css/fixed-frame.css" />
-  <link rel="stylesheet" href="./assets/css/hud-layout.css?v=20261023-6" />
+  <link rel="stylesheet" href="./assets/css/hud-layout.css?v=20261023-7" />
   <link rel="stylesheet" href="./assets/css/multimodal.css" />
   <link rel="stylesheet" href="./assets/css/hud-atmosphere.css?v=20261023-2" />
 
@@ -41,6 +41,7 @@
         <div class="topbar-right"><span class="system-state"><i></i> LOCAL INTERFACE READY</span><span class="top-separator"></span><span class="clock" id="clock">--:--:--</span><button class="settings-trigger" id="openSettings" type="button" aria-haspopup="dialog" aria-controls="settingsDialog"><span class="gear" aria-hidden="true">⚙</span><span class="settings-word">SETTINGS</span></button></div>
       </header>
 <section class="environment active" id="coreEnvironment">
+        <button class="environment-switch-button" id="openIntelligenceLab" type="button" aria-label="Switch to Intelligence Lab" title="Open Intelligence Lab">INTELLIGENCE LAB <span aria-hidden="true">↗</span></button>
         <div class="hero-row">
           <div><div class="eyebrow"><span class="eyebrow-line"></span> CENTRAL INTELLIGENCE / 01</div><h1>Think beyond<br /><span>the interface.</span></h1><p class="hero-copy">One command center to reason through problems, coordinate work, and turn complex goals into clear next steps.</p></div>
           <div class="core-visual" aria-label="Abstract 3D neural core visualization"><canvas id="neuralCoreCanvas" class="neural-core-canvas" aria-label="Interactive 3D neural core. Drag to rotate."></canvas><div class="orbit orbit-a"></div><div class="orbit orbit-b"></div><div class="orbit orbit-c"></div><div class="core-halo"></div><div class="core-sphere"><div class="sphere-shine"></div><div class="sphere-grid"></div></div><span class="orbit-node node-a"></span><span class="orbit-node node-b"></span><span class="orbit-node node-c"></span><div class="visual-tag tag-top"><span>NEURAL CORE</span><b>ACTIVE</b></div><div class="visual-tag tag-bottom"><span>COORDINATION</span><b>STANDBY</b></div></div>
@@ -105,7 +106,7 @@
   </dialog>
   <dialog id="aboutDialog" class="about-dialog"><button class="dialog-close" id="closeDialog" aria-label="Close">×</button><span class="panel-kicker">ABOUT THE SYSTEM</span><h2>EYENEX <em>NEURAL</em></h2><p>A modular AI command center prototype with two focused environments: Neural Core for commands and workflow planning, and Intelligence Lab for structured analysis.</p><p class="dialog-note">This build includes a local mission planner, browser persistence, and optional camera-based head-pointer controls. Camera tracking is off until explicitly started in Settings.</p></dialog>
   <script src="./assets/js/eyenex.js"></script>
-  <script src="./assets/js/orchestration.js"></script>
+  <script src="./assets/js/orchestration.js?v=20261023-3"></script>
   <script src="./assets/js/multimodal.js?v=20261023-5"></script>
   <script src="./assets/js/project-intelligence.js?v=20261023-2"></script>
   <script src="./assets/js/mission-vault.js?v=20261023-2"></script>
