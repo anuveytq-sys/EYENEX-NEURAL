@@ -126,6 +126,7 @@
     const payload={savedAt:now,reason:'EYENEX Command Suite snapshot',missions};
     const ok=write(SNAPSHOT,payload);
     const auxiliary=write('eyenex-neural-command-suite-snapshot-v1',{savedAt:now,focus:read(FOCUS,''),notes:notes(),ops:read(OPS,{})});
+    const restoreButton = $('#mvRestore'); if (restoreButton && ok) restoreButton.disabled = false;
     if(ok) { notify('Mission recovery snapshot saved.'); return 'RECOVERY SNAPSHOT SAVED\n'+missions.length+' mission(s) captured at '+new Date(now).toLocaleString()+'. The existing Mission Vault Restore snapshot can now use this queue snapshot. '+(auxiliary?'Focus, notes, and orchestration metadata were also snapshotted separately.':'Auxiliary snapshot could not be saved due to browser storage limits.'); }
     return 'Snapshot failed: browser storage may be unavailable or full. No queue changes were made.';
   }
