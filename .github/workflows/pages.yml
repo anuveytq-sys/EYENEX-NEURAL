@@ -11,6 +11,11 @@ permissions:
   pages: write
   id-token: write
 
+# Serialize Pages deployments. New pushes wait instead of interrupting the active deployment.
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
 
 jobs:
   deploy:
