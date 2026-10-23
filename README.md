@@ -31,7 +31,7 @@ The settings panel also supports showing/hiding the currently typed key and remo
 - The key is stored in browser `localStorage`; this is convenient but **not encrypted secure storage**. JavaScript running on this site can access it.
 - Use only on a device and browser profile you control. Do not paste your key into chats or commit it to GitHub.
 - Set a spending limit for the key in OpenRouter. The selected model may charge for requests; availability and pricing depend on the model and account.
-- The browser calls OpenRouter directly. This is suitable for a personal prototype, but before a broad public release, prefer a secure server-side proxy or a user-controlled authorization flow rather than asking all users to store long-lived keys in a web page.
+- The browser calls OpenRouter directly. This is suitable for a personal prototype, but before a broad public release, prefer the server-side proxy boundary in `api/ai.js` with `OPENROUTER_API_KEY` stored as a server environment variable rather than asking public users to store a long-lived key in a web page.
 - The UI does not execute external actions, inspect local files, or read GitHub repositories automatically. AI responses are model-generated and should be reviewed.
 
 ## Current working features
@@ -41,17 +41,25 @@ The settings panel also supports showing/hiding the currently typed key and remo
 - Scrollable Settings drawer with close button, API-key field, model ID field, Test API key, Save locally, show/hide key, and remove saved key controls.
 - OpenRouter chat completions for Neural Core and AI-assisted analysis in Intelligence Lab.
 - Opt-in public GitHub repository reconnaissance in Intelligence Lab: repository metadata, README excerpt, and a capped file-path map.
-- Repository reconnaissance is read-only and user-initiated; it does not download or execute source files, modify a repository, or access private repositories.
+- **Bounded read-only source intelligence:** the published build adds a compact Deep Review module that reads a capped set of public source files, builds an architecture-oriented source map, and flags high-signal security, reliability, and performance smells without executing or modifying source code.
+- Repository reconnaissance and source review are user-initiated and public-only; they do not modify repositories, execute fetched code, or access private repositories.
 - Sending the fetched public repository summary to OpenRouter requires a separate unchecked-by-default consent checkbox. Without consent, the scan remains local to the browser.
 - Key verification through OpenRouter's authenticated key-information endpoint.
 - Local fallback planner and structured analysis outline.
 - Rule-based draft task plans for planning-style commands.
 - Mission queue with task status cycling, individual task removal, clear-queue control, and sample workflow.
 - Mission queue persisted in the current browser using localStorage (not synced across devices).
+- Local task orchestration with execution timeline, human approval checkpoints, recovery state, and audit trail. It does not execute consequential external actions.
 - Optional camera-based head-pointer and eye-gaze control using face/iris landmarks, center calibration, smoothing, pause/resume, and opt-in blink confirmation. Tracking can continue after the Settings dialog closes and is stopped only with Stop camera or when the page is refreshed/closed. Camera frames are processed locally in the browser and are not saved or uploaded by this feature.
 - Independent scrollable panels, compact height limits, and visible scrollbar styling.
 - System status distinguishes configured/connected AI from a local-only state.
 - About dialog and reduced-motion support.
+
+## Secure deployment path
+
+`api/ai.js` provides an optional server-side OpenRouter proxy for a Vercel-style serverless deployment. The upstream API key is read only from the server environment (`OPENROUTER_API_KEY`) and is never placed in the published frontend. The proxy accepts bounded chat messages, checks the allowed browser origin, and forwards the request to OpenRouter.
+
+The current GitHub Pages build remains backward-compatible with the existing personal BYOK flow. The proxy file is an architecture boundary for a later secure deployment; GitHub Pages itself does not execute server-side JavaScript.
 
 ## Run locally
 
@@ -66,11 +74,11 @@ This is a static frontend prototype and does not need a build step.
 
 1. **Foundation and compact workspace:** two focused environments, panel scrolling, local mission planning, and structured outline templates. *(Complete in prototype.)*
 2. **OpenRouter BYOK connection:** direct browser chat and analysis with a locally saved user key. *(Implemented; requires user-supplied key and real-device testing.)*
-3. **Safer public AI architecture:** introduce a secure server-side proxy or a user-controlled authorization flow before a broad public launch. Never place a shared private API key in frontend code or Git.
-4. **Project intelligence:** public GitHub repository reconnaissance is now implemented for metadata, README excerpts, and file maps. Deeper source-file review and private-repository access remain future work and require explicit permissioned integration.
-5. **Task orchestration:** add reliable execution logs, approval checkpoints, permissions, and safe recovery before any consequential actions.
+3. **Safer public AI architecture:** server-side proxy boundary added in `api/ai.js`; deploy it on a serverless host and store the provider key as a server environment variable before a broad public launch.
+4. **Project intelligence:** public GitHub reconnaissance and bounded source-file review are implemented. Deeper/private repository access still requires explicit permissioned integration.
+5. **Task orchestration:** reliable local execution timeline, human approval checkpoint, recovery state, and audit trail are implemented. Consequential external actions remain intentionally gated.
 6. **Multimodal controls:** optional camera-based head-pointer and eye-gaze tracking with center calibration, smoothing, pause/resume, persistent tracking across Settings close, and opt-in blink confirmation. *(Implemented as an opt-in browser feature; real-device testing is required.)*
-7. **Publishing:** GitHub Pages can host the static frontend. Keep server-side AI calls and secrets outside the published frontend.
+7. **Publishing:** GitHub Pages hosts the static frontend. The Pages workflow validates the new source-intelligence module and injects it into the published artifact without changing the source HUD layout.
 
 ## Architecture direction
 
