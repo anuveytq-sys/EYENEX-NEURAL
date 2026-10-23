@@ -190,6 +190,12 @@
     if(name==='/review') return briefing()+'\n\n'+riskReport();
     return null;
   }
+  const suiteChip = $('#advancedSuiteChip');
+  if (suiteChip) suiteChip.addEventListener('click', () => {
+    input.value = '/suite';
+    input.focus();
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  });
   const supported=/^\/(suite|commands-plus|brief|risk|timeline|perf|simulate|playbook|snapshot|export|memory|review)(?:\s|$)/i;
   form.addEventListener('submit', event => {
     const raw=(input.value||'').trim();
