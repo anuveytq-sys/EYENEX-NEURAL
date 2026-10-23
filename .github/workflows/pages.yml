@@ -48,7 +48,8 @@ jobs:
         run: |
           sed -i 's#</body>#  <script src="./assets/js/project-intelligence.js"></script>\n</body>#' index.html
           grep -q 'assets/js/project-intelligence.js' index.html
-          echo "Project intelligence module injected into the published HTML artifact."
+          grep -q 'assets/js/mission-vault.js' index.html
+          echo "Project intelligence and mission vault modules injected into the published HTML artifact."
 
       - name: Upload website artifact
         uses: actions/upload-pages-artifact@v3
