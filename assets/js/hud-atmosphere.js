@@ -32,7 +32,7 @@
     canvas.style.width = width + 'px';
     canvas.style.height = height + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const count = Math.min(180, Math.max(54, Math.round(width * height / 9500)));
+    const count = Math.min(220, Math.max(80, Math.round(width * height / 7000)));
     stars = Array.from({ length: count }, () => ({
       x: rand(-width * .12, width * 1.12),
       y: rand(-height * .12, height * 1.12),
@@ -51,13 +51,13 @@
     ctx.beginPath();
     ctx.rect(0, horizon, width, height - horizon);
     ctx.clip();
-    const pulse = .045 + (Math.sin(t * .00035) + 1) * .018;
+    const pulse = .075 + (Math.sin(t * .00035) + 1) * .035;
     ctx.lineWidth = 1;
     for (let i = -12; i <= 12; i++) {
       ctx.beginPath();
       ctx.moveTo(vanishX + i * width * .055, horizon);
       ctx.lineTo(width / 2 + i * width * .17 + pointerX * 22, height + 8);
-      ctx.strokeStyle = 'rgba(68, 190, 233,' + pulse + ')';
+      ctx.strokeStyle = 'rgba(68, 205, 255,' + (pulse * 2.1) + ')';
       ctx.stroke();
     }
     for (let i = 0; i < 10; i++) {
@@ -66,7 +66,7 @@
       ctx.beginPath();
       ctx.moveTo(0, y);
       ctx.lineTo(width, y);
-      ctx.strokeStyle = 'rgba(70, 174, 218,' + (pulse * (1 - p * .35)) + ')';
+      ctx.strokeStyle = 'rgba(70, 195, 255,' + (pulse * 2.0 * (1 - p * .35)) + ')';
       ctx.stroke();
     }
     const glow = ctx.createLinearGradient(0, horizon - 18, 0, horizon + 30);
@@ -89,8 +89,8 @@
 
     // A distant volumetric nebula made from soft radial light, not a heavy image or WebGL dependency.
     const nebula = ctx.createRadialGradient(width * (.52 + pointerX * .04), height * (.40 + pointerY * .03), 0, width * .52, height * .42, Math.max(width, height) * .64);
-    nebula.addColorStop(0, 'rgba(8, 80, 124, .075)');
-    nebula.addColorStop(.45, 'rgba(10, 42, 86, .035)');
+    nebula.addColorStop(0, 'rgba(8, 115, 185, .19)');
+    nebula.addColorStop(.45, 'rgba(10, 65, 135, .10)');
     nebula.addColorStop(1, 'rgba(0, 0, 0, 0)');
     ctx.fillStyle = nebula;
     ctx.fillRect(0, 0, width, height);
@@ -103,7 +103,7 @@
       }
       const x = s.x + pointerX * s.z * 12;
       const y = s.y + pointerY * s.z * 8;
-      const alpha = .12 + (Math.sin(t * .001 + s.phase) + 1) * .12 * s.z;
+      const alpha = .24 + (Math.sin(t * .001 + s.phase) + 1) * .22 * s.z;
       ctx.beginPath();
       ctx.arc(x, y, s.r * (.5 + s.z), 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(132, 222, 255,' + alpha.toFixed(3) + ')';
@@ -123,7 +123,7 @@
           ctx.beginPath();
           ctx.moveTo(a.x + pointerX * a.z * 12, a.y + pointerY * a.z * 8);
           ctx.lineTo(b.x + pointerX * b.z * 12, b.y + pointerY * b.z * 8);
-          ctx.strokeStyle = 'rgba(69, 182, 230,' + ((1 - dist / maxDistance) * .085).toFixed(3) + ')';
+          ctx.strokeStyle = 'rgba(69, 182, 230,' + ((1 - dist / maxDistance) * .16).toFixed(3) + ')';
           ctx.lineWidth = .6;
           ctx.stroke();
         }
