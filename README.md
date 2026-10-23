@@ -49,6 +49,7 @@ The settings panel also supports showing/hiding the currently typed key and remo
 - Rule-based draft task plans for planning-style commands.
 - Mission queue with task status cycling, individual task removal, clear-queue control, and sample workflow.
 - Mission queue persisted in the current browser using localStorage (not synced across devices).
+- **Mission Vault:** compact search and status filters, JSON export/import with merge-and-deduplicate behavior, automatic safety snapshots before clearing or importing, and explicit snapshot restore with a pre-restore export. Backups stay in the browser or the file the user chooses; no queue data is uploaded.
 - Local task orchestration with execution timeline, human approval checkpoints, recovery state, and audit trail. It does not execute consequential external actions.
 - Optional camera-based head-pointer and eye-gaze control using face/iris landmarks, center calibration, smoothing, pause/resume, and opt-in blink confirmation. Tracking can continue after the Settings dialog closes and is stopped only with Stop camera or when the page is refreshed/closed. Camera frames are processed locally in the browser and are not saved or uploaded by this feature.
 - Independent scrollable panels, compact height limits, and visible scrollbar styling.
@@ -78,7 +79,8 @@ This is a static frontend prototype and does not need a build step.
 4. **Project intelligence:** public GitHub reconnaissance and bounded source-file review are implemented. Deeper/private repository access still requires explicit permissioned integration.
 5. **Task orchestration:** reliable local execution timeline, human approval checkpoint, recovery state, and audit trail are implemented. Consequential external actions remain intentionally gated.
 6. **Multimodal controls:** optional camera-based head-pointer and eye-gaze tracking with center calibration, smoothing, pause/resume, persistent tracking across Settings close, and opt-in blink confirmation. *(Implemented as an opt-in browser feature; real-device testing is required.)*
-7. **Publishing:** GitHub Pages hosts the static frontend. The Pages workflow validates the new source-intelligence module and injects it into the published artifact without changing the source HUD layout.
+7. **Mission continuity:** Mission Vault adds local search/status filters, portable JSON backups, import/merge, automatic snapshots before destructive queue changes, and user-confirmed recovery. Existing queue and tracking code paths remain separate.
+8. **Publishing:** GitHub Pages hosts the static frontend. The Pages workflow validates the source-intelligence and Mission Vault modules, then injects them into the published artifact without editing the source HUD layout.
 
 ## Architecture direction
 
