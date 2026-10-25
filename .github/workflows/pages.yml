@@ -41,11 +41,13 @@ jobs:
           test -f assets/js/eyenex.js
           test -f assets/css/multimodal.css
           test -f assets/js/multimodal.js
+          test -f assets/js/file-hub.js
           test -f assets/js/project-intelligence.js
           test -f assets/css/hud-atmosphere.css
           test -f assets/js/hud-atmosphere.js
           test -f assets/js/mission-intelligence.js
           node --check assets/js/multimodal.js
+          node --check assets/js/file-hub.js
           node --check assets/js/project-intelligence.js
           node --check assets/js/hud-atmosphere.js
           node --check assets/js/mission-intelligence.js
