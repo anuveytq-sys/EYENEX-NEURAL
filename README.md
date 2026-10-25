@@ -14,6 +14,14 @@ A focused analysis desk. When OpenRouter is configured, the selected model produ
 
 The two environments share one compact navigation system. Panels have independent scroll areas and height limits so long content does not take over the full screen. The layout adapts to desktop and mobile viewports.
 
+## Hands-free File Hub
+
+The Settings drawer includes an optional local file-selection panel for choosing multiple files from the Windows file picker. It displays file names and sizes and previews supported images/videos locally. The panel does not upload files or store them persistently; the selection is limited to the current page session.
+
+**Native file-picker limitation:** a browser page cannot move its custom webcam-driven head cursor into the separate Windows file-picker dialog or synthesize system-wide blink clicks. When the picker is open, use keyboard navigation or Windows Eye Control if the PC has a supported eye-tracking device configured. Microsoft's Eye Control can navigate Windows UI with dwell-based selection on supported setups: https://support.microsoft.com/en-us/accessibility/windows/eye-control/eye-control-basics-in-windows
+
+For the existing webcam head-and-blink controls to operate across native Windows dialogs and other desktop apps, EYENEX would need a separately installed, explicitly permissioned Windows desktop companion using supported accessibility/input APIs. This web-only change does not install such a companion and does not claim system-wide control.
+
 ## OpenRouter settings
 
 Use the **Settings** button in the top-right corner to open the scrollable settings drawer.
