@@ -3,7 +3,7 @@
   const $ = selector => document.querySelector(selector);
   const startButton = $('#cameraStart'), calibrateButton = $('#cameraCalibrate');
   const pauseButton = $('#cameraPause'), blinkButton = $('#cameraBlink'), stopButton = $('#cameraStop');
-  const modeButton = $('#cameraMode'), handButton = $('#cameraHandMode'), openSettingsButton = $('#openSettings');
+  const modeButton = $('#cameraMode'), handButton = $('#cameraHandMode'), dwellScrollButton = $('#cameraDwellScroll'), openSettingsButton = $('#openSettings');
   const video = $('#cameraPreview'), previewOverlay = $('#cameraPreviewOverlay');
   const status = $('#cameraStatus'), feedback = $('#cameraFeedback');
   const settingsDialog = $('#settingsDialog');
@@ -15,6 +15,82 @@
   let baseline = null, smoothed = null, eyeBaseline = null, eyeSmoothed = null, pointerMode = 'head', closedAt = 0, blinkConsumed = false, lastFrameAt = 0;
   let pointer = null, pointerX = window.innerWidth / 2, pointerY = window.innerHeight / 2;
   let lastConfirmAt = 0, lastDetectErrorAt = 0;
+  let dwellScrollEnabled = false, dwellTarget = null, dwellStartedAt = 0, dwellActive = false, lastDwellY = null, dwellIndicator = null;
+  const DWELL_DELAY_MS = 750, DWELL_EDGE_PX = 30, DWELL_MIN_DELTA_PX = 1.5, DWELL_SCROLL_GAIN = 1.65;
+
+  function findScrollableAtPointer(x, y) {
+    const hit = document.elementFromPoint(x, y);
+    if (!hit) return null;
+    let node = hit;
+    while (node && node !== document.body && node !== document.documentElement) {
+      const style = getComputedStyle(node);
+      if (/(auto|scroll|overlay)/.test(style.overflowY) && node.scrollHeight > node.clientHeight + 4) return node;
+      node = node.parentElement;
+    }
+    return null;
+  }
+  function clearDwellState() {
+    dwellTarget = null; dwellStartedAt = 0; dwellActive = false; lastDwellY = null;
+    if (dwellIndicator) dwellIndicator.classList.remove('is-visible', 'is-armed');
+  }
+  function ensureDwellIndicator() {
+    if (dwellIndicator) return dwellIndicator;
+    dwellIndicator = document.createElement('div');
+    dwellIndicator.className = 'eyenex-dwell-indicator';
+    dwellIndicator.setAttribute('aria-hidden', 'true');
+    dwellIndicator.innerHTML = '<span class="eyenex-dwell-dot"></span><span class="eyenex-dwell-label">DWELL SCROLL</span>';
+    document.body.appendChild(dwellIndicator);
+    return dwellIndicator;
+  }
+  function updateDwellScroll(now) {
+    if (!dwellScrollEnabled || !stream || paused || handMode || !baseline) {
+      clearDwellState();
+      return;
+    }
+    const target = findScrollableAtPointer(pointerX, pointerY);
+    if (!target) { clearDwellState(); return; }
+    const rect = target.getBoundingClientRect();
+    const inside = pointerX >= rect.left && pointerX <= rect.right && pointerY >= rect.top && pointerY <= rect.bottom;
+    if (!inside) { clearDwellState(); return; }
+    const nearScrollRail = pointerX >= rect.right - DWELL_EDGE_PX;
+    if (!dwellActive) {
+      if (!nearScrollRail) {
+        clearDwellState();
+        return;
+      }
+      if (dwellTarget !== target) {
+        clearDwellState();
+        dwellTarget = target;
+        dwellStartedAt = now;
+      }
+      const indicator = ensureDwellIndicator();
+      indicator.style.left = Math.max(8, Math.min(window.innerWidth - 145, rect.right - 142)) + 'px';
+      indicator.style.top = Math.max(8, Math.min(window.innerHeight - 28, pointerY - 14)) + 'px';
+      indicator.classList.add('is-visible', 'is-armed');
+      if (now - dwellStartedAt >= DWELL_DELAY_MS) {
+        dwellActive = true;
+        lastDwellY = pointerY;
+        indicator.classList.remove('is-armed');
+        indicator.classList.add('is-visible');
+        say('Dwell scroll active for this panel. Move your head up or down to scroll; move outside the panel to stop.');
+      }
+      return;
+    }
+    if (target !== dwellTarget) { clearDwellState(); return; }
+    const indicator = ensureDwellIndicator();
+    indicator.style.left = Math.max(8, Math.min(window.innerWidth - 145, rect.right - 142)) + 'px';
+    indicator.style.top = Math.max(8, Math.min(window.innerHeight - 28, pointerY - 14)) + 'px';
+    indicator.classList.add('is-visible');
+    indicator.classList.remove('is-armed');
+    if (lastDwellY !== null) {
+      const delta = pointerY - lastDwellY;
+      if (Math.abs(delta) >= DWELL_MIN_DELTA_PX) {
+        const maxStep = Math.min(42, Math.abs(delta) * DWELL_SCROLL_GAIN);
+        target.scrollTop += Math.sign(delta) * maxStep;
+      }
+    }
+    lastDwellY = pointerY;
+  }
 
   function setStatus(label, active = false) {
     status.textContent = label;
@@ -87,12 +163,14 @@
     blinkButton.disabled = !active;
     if (modeButton) modeButton.disabled = !active;
     if (handButton) handButton.disabled = !active;
+    if (dwellScrollButton) dwellScrollButton.disabled = !active;
     stopButton.disabled = !active;
     startButton.disabled = active;
     pauseButton.textContent = paused ? 'Resume tracking' : 'Pause tracking';
     blinkButton.textContent = 'Blink confirm: ' + (blinkConfirm ? 'ON' : 'OFF');
     if (modeButton) modeButton.textContent = 'Pointer mode: ' + (pointerMode === 'head' ? 'HEAD' : 'EYE GAZE');
     if (handButton) handButton.textContent = 'Hand gestures: ' + (handMode ? 'ON' : 'OFF');
+    if (dwellScrollButton) dwellScrollButton.textContent = 'Dwell scroll: ' + (dwellScrollEnabled ? 'ON' : 'OFF');
   }
   async function stopCamera(message = 'Camera stopped. The video stream has been released.') {
     if (raf) cancelAnimationFrame(raf);
@@ -102,6 +180,7 @@
     closedAt = 0;
     blinkConsumed = false;
     handMode = false; pinchWasClosed = false; handSmoothed = null; lastHandY = null;
+    dwellScrollEnabled = false; clearDwellState(); if (dwellIndicator) dwellIndicator.classList.remove('is-visible', 'is-armed');
     if (handLandmarker) { try { handLandmarker.close(); } catch (_) {} }
     handLandmarker = null;
     if (stream) stream.getTracks().forEach(track => track.stop());
@@ -247,6 +326,7 @@
                 y = (0.5 + (smoothed.y - baseline.y) * 3.2) * window.innerHeight;
               }
               updatePointer(x, y);
+              updateDwellScroll(now);
               setStatus(blinkConfirm ? 'TRACKING · BLINK ON' : 'TRACKING', true);
             }
             const categories = result.faceBlendshapes && result.faceBlendshapes[0] && result.faceBlendshapes[0].categories;
@@ -265,6 +345,7 @@
               closedAt = 0;
             }
           } else {
+            clearDwellState();
             setStatus('FACE NOT DETECTED', true);
           }
         } catch (error) {
@@ -295,6 +376,8 @@
     paused = !paused;
     pauseButton.textContent = paused ? 'Resume tracking' : 'Pause tracking';
     if (paused) {
+      clearDwellState();
+      if (dwellIndicator) dwellIndicator.classList.remove('is-visible', 'is-armed');
       if (raf) cancelAnimationFrame(raf);
       raf = 0;
       if (pointer) pointer.classList.remove('is-active');
@@ -313,6 +396,16 @@
     setControls(!!stream);
     say(pointerMode === 'eye' ? 'Eye-gaze mode enabled. Use Calibrate center while looking at the screen center; small eye movements steer the pointer.' : 'Head-pointer mode enabled. Use Calibrate center while holding a comfortable neutral head position.');
   });
+  if (dwellScrollButton) dwellScrollButton.addEventListener('click', () => {
+    if (!stream) return;
+    dwellScrollEnabled = !dwellScrollEnabled;
+    clearDwellState();
+    setControls(true);
+    if (!dwellScrollEnabled && dwellIndicator) dwellIndicator.classList.remove('is-visible', 'is-armed');
+    say(dwellScrollEnabled
+      ? 'Dwell scroll enabled. Move the pointer to the right edge of a scrollable panel and hold still for 0.75 seconds. When the indicator activates, move your head up/down to scroll; leave the panel to stop. Blink-to-click remains unchanged.'
+      : 'Dwell scroll disabled. Head tracking and blink-to-click remain available.');
+  });
   if (handButton) handButton.addEventListener('click', async () => {
     if (!stream) return;
     if (handMode) {
@@ -327,6 +420,7 @@
     try {
       if (!handLandmarker) handLandmarker = await loadHandLandmarker();
       handMode = true; pinchWasClosed = false; handSmoothed = null; lastHandY = null;
+      clearDwellState(); if (dwellIndicator) dwellIndicator.classList.remove('is-visible', 'is-armed');
       setControls(true); setStatus('HAND GESTURES · ACTIVE', true);
       say('Hand mode active: move your index fingertip to steer; pinch thumb and index finger to click; hold an open palm and move vertically to scroll. Keep your hand fully visible in the camera preview.');
       tick();

@@ -27,3 +27,12 @@
 
 .camera-gesture-guide{margin:8px 0 0;padding:9px 10px;border-left:2px solid rgba(112,232,242,.45);background:rgba(112,232,242,.035);font:9px/1.7 var(--mono);letter-spacing:.015em;color:#a8c4d4}
 .eyenex-camera-pointer{will-change:left,top;transition:left 12ms linear,top 12ms linear}
+
+
+/* Optional dwell-to-scroll mode: independent from blink-to-click and existing pointer smoothing. */
+.eyenex-dwell-indicator{position:fixed;z-index:9998;display:none;align-items:center;gap:7px;padding:7px 9px;border:1px solid rgba(112,232,242,.42);border-radius:6px;background:rgba(5,14,25,.94);color:#b9f8ff;font:8px/1 var(--mono);letter-spacing:.09em;box-shadow:0 0 18px rgba(48,205,231,.16);pointer-events:none;white-space:nowrap}
+.eyenex-dwell-indicator.is-visible{display:flex}
+.eyenex-dwell-dot{width:7px;height:7px;border-radius:50%;background:#55b8cb;box-shadow:0 0 8px rgba(85,184,203,.5)}
+.eyenex-dwell-indicator.is-armed .eyenex-dwell-dot{background:#f0c56d;animation:eyenex-dwell-pulse .65s ease-in-out infinite alternate}
+.eyenex-dwell-indicator:not(.is-armed) .eyenex-dwell-dot{background:#83f0c8;box-shadow:0 0 10px rgba(131,240,200,.8)}
+@keyframes eyenex-dwell-pulse{from{opacity:.45;transform:scale(.75)}to{opacity:1;transform:scale(1.2)}}
