@@ -345,6 +345,7 @@
               closedAt = 0;
             }
           } else {
+            clearDwellState();
             setStatus('FACE NOT DETECTED', true);
           }
         } catch (error) {
@@ -375,6 +376,8 @@
     paused = !paused;
     pauseButton.textContent = paused ? 'Resume tracking' : 'Pause tracking';
     if (paused) {
+      clearDwellState();
+      if (dwellIndicator) dwellIndicator.classList.remove('is-visible', 'is-armed');
       if (raf) cancelAnimationFrame(raf);
       raf = 0;
       if (pointer) pointer.classList.remove('is-active');
