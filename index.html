@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./assets/css/eyenex.css" />
   <link rel="stylesheet" href="./assets/css/panel-scroll.css" />
-  <link rel="stylesheet" href="./assets/css/settings.css" />
+  <link rel="stylesheet" href="./assets/css/settings.css?v=20261025-filehub" />
   <link rel="stylesheet" href="./assets/css/fixed-frame.css" />
   <link rel="stylesheet" href="./assets/css/hud-layout.css?v=20261023-7" />
   <link rel="stylesheet" href="./assets/css/multimodal.css?v=20261025-1" />
@@ -102,6 +102,23 @@
           <p class="camera-gesture-guide">GESTURES: Index fingertip = pointer · Thumb + index pinch = click · Open palm moving up/down = scroll. Blink confirmation remains optional.</p>
           <p class="camera-privacy-note">Privacy: video frames are processed in this browser and are not uploaded or saved by this feature. The tracking library and model are downloaded from their published CDN when you start. Camera control requires a secure HTTPS page and browser permission.</p>
         </section>
+        <section class="file-hub-card" aria-labelledby="fileHubTitle">
+          <div class="camera-control-heading"><span class="panel-kicker">ACCESSIBILITY / 02</span><span class="camera-status" id="fileHubStatus">READY</span></div>
+          <h3 id="fileHubTitle">Hands-free File Hub</h3>
+          <p class="camera-control-copy">Choose photos, videos, PDFs, and other files from your PC. Selected files stay in this browser session and are not uploaded anywhere by this panel.</p>
+          <input id="fileHubInput" class="file-hub-input" type="file" multiple aria-label="Choose files from your computer" />
+          <div class="file-hub-actions">
+            <button class="settings-action primary" id="fileHubChoose" type="button">Choose files ↗</button>
+            <button class="settings-action secondary" id="fileHubClear" type="button" disabled>Clear selection</button>
+          </div>
+          <p class="file-hub-feedback" id="fileHubFeedback" role="status" aria-live="polite">No files selected.</p>
+          <div class="file-hub-list" id="fileHubList" aria-live="polite"></div>
+          <div class="file-hub-accessibility">
+            <strong>Controlling the Windows file picker</strong>
+            <p>EYENEX's webcam cursor works inside the webpage. Browser security prevents it from controlling the separate Windows file-picker dialog. While that dialog is open, use Windows keyboard navigation, or Windows Eye Control if your PC has a supported eye-tracking device enabled. Your current webcam head/blink cursor does not automatically become a system-wide Windows cursor.</p>
+            <a href="https://support.microsoft.com/en-us/accessibility/windows/eye-control/eye-control-basics-in-windows" target="_blank" rel="noopener noreferrer">Windows Eye Control guide ↗</a>
+          </div>
+        </section>
       </div>
     </div>
   </dialog>
@@ -109,6 +126,7 @@
   <script src="./assets/js/eyenex.js"></script>
   <script src="./assets/js/orchestration.js?v=20261023-3"></script>
   <script src="./assets/js/multimodal.js?v=20261025-1"></script>
+  <script src="./assets/js/file-hub.js?v=20261025-1"></script>
   <script src="./assets/js/project-intelligence.js?v=20261023-2"></script>
   <script src="./assets/js/mission-vault.js?v=20261023-2"></script>
   <script src="./assets/js/hud-atmosphere.js?v=20261023-2"></script>
